@@ -1,0 +1,1606 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0F1729">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>document.documentElement.setAttribute("data-theme", "dark");</script>
+<title>Biscuit's Math Builder</title>
+<meta name="version" content="1.0.3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;500;700&display=swap">
+<style>
+/* Layout: graph-paper desk; one big working card (blocks / equations / number line) beside a coach card with the next step. */
+:root {
+  --bg: #EEF3FA;
+  --grid: #DCE5F2;
+  --paper: #FFFFFF;
+  --ink: #1B2545;
+  --muted: #56627F;
+  --line: #C9D4E6;
+  --a: #2F6BDB;      --a-edge: #1D4DA8;   /* first number: blue blocks */
+  --b: #1E9E6A;      --b-edge: #14774F;   /* second number: green blocks */
+  --t: #F2A516;      --t-edge: #B87A06;   /* traded / regrouped: yellow */
+  --gone: #D93F44;
+  --btn: #1B2545;    --btn-fg: #FFFFFF;
+  --on-block: #FFFFFF;
+  --btn-fg-on-t: #1B2545;
+  --pup: #D9A066; --pup-ear: #9C6534; --pup-muzzle: #F7E9D6; --pup-nose: #2A1D14; --pup-tongue: #E8707F;
+  --bone: #F4EBDD; --bone-edge: #B9A688; --collar: #E0433F; --tag: #F2C230; --ball: #B7E04A; --ball-seam: #FFFFFF;
+  --bandana: #3F7FE0; --hat: #B66AE0; --shades: #1B1B24;
+  --soft: #E6EDF8;
+  --slot: #FFF4D6;
+  --good: #14774F;   --good-bg: #E2F5EC;
+  --bad: #B3262B;    --bad-bg: #FDE8E8;
+  --focus: #F2A516;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1729; --grid: #18233D; --paper: #17213A; --ink: #EEF2FB; --muted: #A3AFCC; --line: #2C3A5C;
+    --a: #5B8FF0; --a-edge: #3A6ED0; --b: #3CC48A; --b-edge: #22995F; --t: #F5B83A; --t-edge: #C98D12;
+    --gone: #FF6B6F; --btn: #F5B83A; --btn-fg: #1B2545; --soft: #22304F; --slot: #3A3320;
+    --good: #6FE0AE; --good-bg: #173A2C; --bad: #FF9A9D; --bad-bg: #432024; --focus: #F5B83A;
+    --on-block: #0F1729;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1729; --grid: #18233D; --paper: #17213A; --ink: #EEF2FB; --muted: #A3AFCC; --line: #2C3A5C;
+  --a: #5B8FF0; --a-edge: #3A6ED0; --b: #3CC48A; --b-edge: #22995F; --t: #F5B83A; --t-edge: #C98D12;
+  --gone: #FF6B6F; --btn: #F5B83A; --btn-fg: #1B2545; --soft: #22304F; --slot: #3A3320;
+  --good: #6FE0AE; --good-bg: #173A2C; --bad: #FF9A9D; --bad-bg: #432024; --focus: #F5B83A;
+  --on-block: #0F1729;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 40px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 18px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; text-wrap: balance; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* top bar */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { display: grid; grid-template-columns: repeat(2, 12px); gap: 3px; }
+.brand-mark span { width: 12px; height: 12px; border-radius: 3px; background: var(--a); }
+.brand-mark span:nth-child(2) { background: var(--b); }
+.brand-mark span:nth-child(3) { background: var(--t); }
+.brand h1 { font-size: 1.6rem; }
+.stars { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 2px solid var(--line);
+  border-radius: 999px; padding: 4px 14px 4px 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stars svg { width: 24px; height: 24px; }
+.star-fill { fill: var(--t); stroke: var(--t-edge); stroke-width: 1.5; }
+
+/* home */
+.hello { display: grid; gap: 6px; }
+.hello h2 { font-size: clamp(2rem, 6vw, 3.2rem); }
+.hello p { margin: 0; color: var(--muted); max-width: 60ch; }
+.choices { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.seg-label { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: block; margin-bottom: 6px; }
+.seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; padding: 8px 16px; border-radius: 10px; font-weight: 700; }
+.seg button[aria-pressed="true"] { background: var(--btn); color: var(--btn-fg); }
+.tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 520px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { text-align: left; background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 16px;
+  display: grid; gap: 10px; align-content: start; transition: transform .15s, border-color .15s; }
+.tile:hover { transform: translateY(-3px); border-color: var(--ink); }
+.tile h3 { font-size: 1.45rem; }
+.tile p { margin: 0; color: var(--muted); font-size: .95rem; }
+.tile-art { height: 64px; display: flex; align-items: flex-end; gap: 4px; }
+.mini-rod { width: 10px; height: 60px; border-radius: 2px; background: var(--a);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 5px, rgba(0,0,0,.22) 5px 6px); }
+.mini-cube { width: 10px; height: 10px; border-radius: 2px; background: var(--b); }
+.mini-eq { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; align-self: center; }
+.mini-eq b { background: var(--slot); border-radius: 6px; padding: 0 6px; }
+.tile-art svg { width: 100%; height: 64px; }
+.tips { background: var(--paper); border: 2px dashed var(--line); border-radius: 16px; padding: 12px 16px; }
+.tips summary { cursor: pointer; font-weight: 700; }
+.tips p, .tips li { color: var(--muted); max-width: 70ch; }
+.reset-box { display: grid; gap: 8px; justify-items: start; margin-top: 18px; padding-top: 14px; border-top: 2px dashed var(--line); }
+.reset-box h4 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; color: var(--ink); }
+.reset-box p { margin: 0; }
+.reset-confirm { display: grid; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--bad-bg); border: 2px solid var(--gone); }
+.reset-confirm p { color: var(--ink); }
+.reset-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.reset-yes { border: 0; border-radius: 12px; padding: 8px 16px; font-weight: 800; background: var(--gone); color: var(--on-block); }
+.reset-done { color: var(--good) !important; font-weight: 700; }
+.reset-code-label { font-weight: 700; color: var(--ink); }
+.reset-code { width: 8ch; font: 800 1.4rem var(--font-display); letter-spacing: .3em; text-align: center; padding: 6px 8px;
+  border: 2px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); }
+.reset-msg { color: var(--bad) !important; font-weight: 700; }
+.guide { display: grid; gap: 6px; padding-top: 6px; }
+.guide h4 { font-family: var(--font-display); font-size: 1.25rem; margin: 14px 0 0; color: var(--ink); }
+.guide p, .guide ol, .guide ul { margin: 0; }
+.guide .ex { color: var(--ink); font-weight: 700; margin-top: 6px; }
+.guide strong { color: var(--ink); }
+
+/* play screen */
+.play-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.back { border: 2px solid var(--line); background: var(--paper); border-radius: 12px; padding: 6px 14px; font-weight: 700; }
+.demo-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.watch-btn { border: 0; border-radius: 12px; padding: 8px 16px; font-weight: 800; background: var(--t); color: var(--btn-fg-on-t); }
+#play.demo #controls { pointer-events: none; }
+#play.demo .pad { display: none; }
+.demo-tag { display: inline-block; background: var(--t); color: var(--btn-fg-on-t); border-radius: 999px; padding: 2px 12px; font-size: .9rem; font-weight: 800; vertical-align: middle; }
+.mode-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; }
+.problem { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 10vw, 4.4rem); line-height: 1;
+  font-variant-numeric: tabular-nums; }
+.problem .na { color: var(--a); }
+.problem .nb { color: var(--b); }
+.problem .q { background: var(--slot); border-radius: 14px; padding: 4px 18px; min-width: 1.6em; text-align: center; }
+.say { border: 2px solid var(--line); background: var(--paper); border-radius: 50%; width: 46px; height: 46px;
+  display: inline-grid; place-items: center; flex: none; }
+.say svg { width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.play-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .play-grid { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--paper); border: 2px solid var(--line); border-radius: 20px; padding: 16px; min-width: 0; }
+.work { min-height: 240px; display: grid; gap: 12px; align-content: start; }
+
+/* base ten mat */
+.mat { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+.col { padding: 10px; min-height: 200px; min-width: 0; }
+.col + .col { border-left: 2px solid var(--line); }
+.col-h { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.tens { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
+.ones { display: grid; grid-template-columns: repeat(5, 16px); gap: 4px; }
+.rod, .cube { position: relative; display: block; border-radius: 3px; border: 1.5px solid var(--a-edge); background: var(--a);
+  transition: transform .55s ease, opacity .55s ease; }
+.rod { width: 16px; height: 160px;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 14.4px, rgba(0,0,0,.25) 14.4px 16px); }
+.cube { width: 16px; height: 16px; }
+.c-b { background-color: var(--b); border-color: var(--b-edge); }
+.c-t { background-color: var(--t); border-color: var(--t-edge); }
+.gone { opacity: .28; }
+.gone::after { content: ""; position: absolute; inset: -3px;
+  background: linear-gradient(45deg, transparent 44%, var(--gone) 44% 56%, transparent 56%); }
+.leave { transform: scale(.3) translateX(-40px); opacity: 0; }
+.fresh { animation: pop .5s ease; }
+@keyframes pop { 0% { transform: scale(.2); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .85rem; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.counts { display: flex; gap: 18px; flex-wrap: wrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* expanded form */
+.eq-lines { display: grid; gap: 10px; }
+.eq { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(1.4rem, 4.6vw, 2rem); font-variant-numeric: tabular-nums; }
+.eq .lab { font-family: var(--font-body); font-weight: 700; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); min-width: 6.2em; }
+.slot { display: inline-block; min-width: 2.2em; text-align: center; border-radius: 10px; padding: 0 8px; border: 2px dashed var(--line); color: var(--muted); }
+.slot.active { border-style: solid; border-color: var(--focus); background: var(--slot); color: var(--ink); }
+.slot.filled { border-style: solid; border-color: transparent; background: var(--soft); color: var(--ink); }
+.na-t { color: var(--a); }
+.nb-t { color: var(--b); }
+.note { font-size: .9rem; color: var(--muted); }
+
+/* number line */
+.nl-wrap { width: 100%; overflow-x: auto; }
+.nl-wrap svg { width: 100%; height: auto; display: block; }
+.nl-axis { stroke: var(--ink); stroke-width: 3; }
+.nl-tick { stroke: var(--muted); stroke-width: 1.5; }
+.nl-tick.big { stroke: var(--ink); stroke-width: 2.5; }
+.nl-num { fill: var(--muted); font: 600 26px var(--font-body); text-anchor: middle; }
+.nl-num.key { fill: var(--ink); font-weight: 700; }
+.nl-arc { fill: none; stroke-width: 3; }
+.nl-arc.ten { stroke: var(--a); }
+.nl-arc.one { stroke: var(--b); }
+.nl-arc-lab { font: 700 24px var(--font-body); text-anchor: middle; fill: var(--a); }
+.nl-arc-lab.one { font-size: 16px; fill: var(--b); }
+.nl-dot { fill: var(--t); stroke: var(--t-edge); stroke-width: 3; }
+.nl-start { fill: var(--a); }
+
+/* coach */
+.coach { display: grid; gap: 14px; }
+.coach-top { display: flex; gap: 10px; align-items: flex-start; }
+.coach-text { margin: 0; font-size: 1.12rem; font-weight: 500; min-width: 0; }
+.step-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.step-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.step-dots span.on { background: var(--b); }
+.ans-row { display: flex; align-items: center; gap: 10px; }
+.ans { flex: 1; min-width: 0; height: 64px; border-radius: 14px; border: 3px solid var(--focus); background: var(--slot);
+  font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.ans.empty { color: var(--muted); font-size: 1.1rem; font-family: var(--font-body); font-weight: 500; }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pad button { height: 56px; border-radius: 14px; border: 2px solid var(--line); background: var(--soft);
+  font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; }
+.pad button:active { transform: scale(.96); }
+.pad .ok { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); font-size: 1.2rem; }
+.big-btn { width: 100%; min-height: 60px; border: 0; border-radius: 16px; background: var(--btn); color: var(--btn-fg);
+  font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; padding: 8px 16px; }
+.hop-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hop-btn { min-height: 76px; border-radius: 16px; border: 3px solid var(--a-edge); background: var(--a); color: var(--on-block);
+  font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.05; }
+.hop-btn small { display: block; font-family: var(--font-body); font-size: .8rem; font-weight: 500; }
+.hop-btn.one { background: var(--b); border-color: var(--b-edge); }
+.hop-btn:disabled { opacity: .35; cursor: default; }
+.hop-count { display: flex; justify-content: space-between; gap: 10px; font-weight: 700; font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.undo { border: 2px solid var(--line); background: var(--paper); border-radius: 12px; padding: 6px 14px; font-weight: 700; justify-self: start; }
+.fb { border-radius: 14px; padding: 10px 14px; font-weight: 600; }
+.fb.good { background: var(--good-bg); color: var(--good); }
+.fb.bad { background: var(--bad-bg); color: var(--bad); }
+.fb.info { background: var(--soft); color: var(--ink); }
+.fb.oops { background: var(--slot); color: var(--ink); border: 2px solid var(--focus); }
+.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* quiz */
+.qz-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.qz-dots span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); background: var(--paper); }
+.qz-dots span.right { background: var(--b); border-color: var(--b-edge); }
+.qz-dots span.miss { background: var(--gone); border-color: var(--gone); }
+.qz-dots span.now { border-color: var(--focus); border-width: 3px; }
+.result { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 12px 0; }
+.result h2 { font-size: clamp(2rem, 7vw, 3rem); }
+.result-stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 100%; }
+.result-stars svg { width: 28px; height: 28px; }
+.star-empty { fill: var(--soft); stroke: var(--line); stroke-width: 1.5; }
+
+/* Biscuit the puppy */
+.pup { width: 100%; height: auto; display: block; overflow: visible; }
+.pup .pup-tail { transform-origin: 92px 84px; animation: wag 1.4s ease-in-out infinite; }
+.pup .pup-head { transform-origin: 52px 74px; transition: transform .35s ease; }
+.pup .pup-tongue { opacity: 0; transition: opacity .2s; }
+.pup.happy { animation: hop .45s ease 2; }
+.pup.happy .pup-tail { animation-duration: .28s; }
+.pup.happy .pup-tongue { opacity: 1; }
+.pup.think .pup-head { transform: rotate(-14deg); }
+@keyframes wag { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(16deg); } }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.pup-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; align-items: center; }
+.bubble { position: relative; background: var(--soft); border-radius: 18px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.bubble::before { content: ""; position: absolute; left: -10px; top: 26px; border: 10px solid transparent; border-left: 0; border-right-color: var(--soft); }
+.bubble .say { flex: none; }
+.hello-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: center; }
+@media (max-width: 520px) { .hello-row { grid-template-columns: 84px minmax(0, 1fr); } }
+.pup .acc { display: none; }
+.pup.has-bone .acc-bone, .pup.has-collar .acc-collar, .pup.has-ball .acc-ball,
+.pup.has-bandana .acc-bandana, .pup.has-hat .acc-hat, .pup.has-shades .acc-shades { display: inline; }
+
+/* Biscuit's treat shelf */
+.shelf { display: grid; gap: 12px; }
+.shelf-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
+.shelf-head h3 { font-size: 1.4rem; }
+.shelf-next { color: var(--muted); font-weight: 600; }
+.meter { height: 14px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+.meter span { display: block; height: 100%; width: 0; background: var(--t); border-radius: 999px; transition: width .5s ease; }
+.treats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 700px) { .treats { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.treat { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 10px 6px; border-radius: 14px;
+  border: 2px solid var(--line); font-size: .85rem; font-weight: 600; min-width: 0; }
+.treat svg { width: 44px; height: 44px; }
+.treat.locked { border-style: dashed; color: var(--muted); }
+.treat.locked svg { opacity: .18; filter: grayscale(1); }
+.treat.got { background: var(--slot); border-color: var(--focus); }
+.treat-pop { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100% - 32px));
+  background: var(--paper); border: 3px solid var(--focus); border-radius: 20px; padding: 14px 16px;
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .25); animation: rise .4s ease; }
+.treat-pop svg { width: 64px; height: 64px; }
+.treat-pop p { margin: 0; font-weight: 700; font-size: 1.1rem; }
+.treat-pop .big-btn { grid-column: 1 / -1; min-height: 48px; font-size: 1.2rem; }
+@keyframes rise { from { transform: translate(-50%, 30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+.voice-btn { border: 2px solid var(--line); background: var(--paper); border-radius: 999px; padding: 6px 14px; font-weight: 700; }
+.voice-btn[aria-pressed="false"] { color: var(--muted); }
+.top-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="bar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <h1>Biscuit's Math Builder</h1>
+    </div>
+    <div class="top-right">
+      <button type="button" class="voice-btn" id="voice-btn" aria-pressed="true">Biscuit's voice: On</button>
+      <div class="stars" aria-live="polite" title="Stars you have earned">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
+        <span id="star-count">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <section id="home" class="wrap" aria-labelledby="hi">
+    <div class="hello-row">
+      <div data-pup id="pup-home" aria-hidden="true"></div>
+      <div class="hello">
+        <h2 id="hi">Hi! I'm Biscuit.</h2>
+        <p>Let's practice adding and taking away together. I'll help you every step. Pick one, then pick a way to solve. Every problem you finish earns a star!</p>
+      </div>
+    </div>
+    <div class="choices">
+      <div>
+        <span class="seg-label" id="op-label">What are we doing?</span>
+        <div class="seg" role="group" aria-labelledby="op-label">
+          <button type="button" id="op-add" data-op="add" aria-pressed="true">Adding +</button>
+          <button type="button" id="op-sub" data-op="sub" aria-pressed="false">Taking away −</button>
+        </div>
+      </div>
+      <div>
+        <span class="seg-label" id="lvl-label">How hard?</span>
+        <div class="seg" role="group" aria-labelledby="lvl-label">
+          <button type="button" id="lvl-easy" data-lvl="easy" aria-pressed="false">Warm-up</button>
+          <button type="button" id="lvl-hard" data-lvl="hard" aria-pressed="true">With trading</button>
+          <button type="button" id="lvl-mix" data-lvl="mix" aria-pressed="false">Mix (like a quiz)</button>
+        </div>
+      </div>
+    </div>
+    <div class="tiles">
+      <button type="button" class="tile" id="tile-blocks" data-mode="blocks">
+        <div class="tile-art" aria-hidden="true"><span class="mini-rod"></span><span class="mini-rod"></span><span class="mini-rod"></span><span class="mini-cube"></span><span class="mini-cube"></span><span class="mini-cube"></span></div>
+        <h3>Base Ten Blocks</h3>
+        <p>Use rods (tens) and cubes (ones). Trade 10 ones for a ten.</p>
+      </button>
+      <button type="button" class="tile" id="tile-expanded" data-mode="expanded">
+        <div class="tile-art" aria-hidden="true"><span class="mini-eq">59 = <b>50</b> + <b>9</b></span></div>
+        <h3>Expanded Form</h3>
+        <p>Split each number into tens and ones, then put them back together.</p>
+      </button>
+      <button type="button" class="tile" id="tile-line" data-mode="line">
+        <div class="tile-art" aria-hidden="true">
+          <svg viewBox="0 0 200 64"><path d="M10 52H190" class="nl-axis"/><path d="M30 52Q70 4 110 52" class="nl-arc ten"/><path d="M110 52Q120 30 130 52M130 52Q140 30 150 52M150 52Q160 30 170 52" class="nl-arc one"/><circle cx="170" cy="52" r="6" class="nl-dot"/></svg>
+        </div>
+        <h3>Number Line</h3>
+        <p>Start at a number. Make big jumps of 10 and little hops of 1.</p>
+      </button>
+      <button type="button" class="tile" id="tile-quiz" data-mode="quiz">
+        <div class="tile-art" aria-hidden="true">
+          <svg viewBox="0 0 200 64"><g transform="translate(20 8) scale(2)"><path class="star-fill" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></g><g transform="translate(76 8) scale(2)"><path class="star-fill" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></g><g transform="translate(132 8) scale(2)"><path class="star-empty" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></g></svg>
+        </div>
+        <h3>Quiz Time</h3>
+        <p>10 problems in a row. Use any way you like to solve them.</p>
+      </button>
+    </div>
+    <div class="card shelf" id="shelf" aria-labelledby="shelf-title">
+      <div class="shelf-head">
+        <h3 id="shelf-title">Biscuit's treats</h3>
+        <span class="shelf-next" id="shelf-next"></span>
+      </div>
+      <div class="meter" aria-hidden="true"><span id="shelf-meter"></span></div>
+      <div class="treats" id="treats"></div>
+    </div>
+    <details class="tips" id="tips">
+      <summary>For grown-ups: a plain-English guide to each way</summary>
+      <div class="guide">
+        <p>Every problem in the game is a 2-digit number plus or minus a 2-digit number, the kind second graders practice with base ten blocks, expanded form and a number line. The examples below are the ones Biscuit shows when you tap Watch Biscuit show me.</p>
+
+        <h4>1. Base Ten Blocks</h4>
+        <p>Think of it like play money. A rod is $10 and a small cube is $1. Ten $1 cubes can be traded for one $10 rod.</p>
+        <p class="ex">Adding: 52 + 19</p>
+        <ol>
+          <li>52 is 5 rods and 2 cubes. 19 is 1 rod and 9 cubes.</li>
+          <li>Put them together: 6 rods and 11 cubes.</li>
+          <li>11 cubes is too many for the ones place, so trade 10 cubes for 1 rod.</li>
+          <li>Now there are 7 rods and 1 cube: <strong>71</strong>.</li>
+        </ol>
+        <p class="ex">Taking away: 52 − 19</p>
+        <ol>
+          <li>52 is 5 rods and 2 cubes. We need to take away 1 rod and 9 cubes.</li>
+          <li>You can't take 9 cubes from 2 cubes, so break 1 rod into 10 cubes.</li>
+          <li>Now there are 4 rods and 12 cubes.</li>
+          <li>Take away 9 cubes (3 left) and 1 rod (3 left): <strong>33</strong>.</li>
+        </ol>
+
+        <h4>2. Expanded Form</h4>
+        <p>Break each number into its tens and ones, work on each part, then put them back together.</p>
+        <p class="ex">Adding: 59 + 12</p>
+        <ol>
+          <li>Break them apart: 59 = 50 + 9 and 12 = 10 + 2.</li>
+          <li>Add the tens: 50 + 10 = 60.</li>
+          <li>Add the ones: 9 + 2 = 11.</li>
+          <li>Put them together: 60 + 11 = <strong>71</strong>.</li>
+        </ol>
+        <p class="ex">Taking away: 52 − 19</p>
+        <ol>
+          <li>Break them apart: 52 = 50 + 2 and 19 = 10 + 9.</li>
+          <li>There aren't enough ones to take away 9, so trade a ten: 50 + 2 becomes 40 + 12.</li>
+          <li>Take away the tens: 40 − 10 = 30. Take away the ones: 12 − 9 = 3.</li>
+          <li>Put them together: 30 + 3 = <strong>33</strong>.</li>
+        </ol>
+
+        <h4>3. Number Line</h4>
+        <p>Imagine hopping along a sidewalk with numbers painted on it. In the game, your child makes big jumps of 10 and little hops of 1.</p>
+        <p class="ex">Adding: 25 + 19 (19 is 1 ten and 9 ones)</p>
+        <ol>
+          <li>Start at 25.</li>
+          <li>One way: hop +1 nine times (26, 27 … 34), then jump +10 to <strong>44</strong>.</li>
+          <li>Or jump +10 first to 35, then hop +1 nine times to <strong>44</strong>. Both orders land in the same place.</li>
+        </ol>
+        <p class="ex">Taking away: 44 − 19</p>
+        <ol>
+          <li>Start at 44 and go backward.</li>
+          <li>Jump −10 to 34, then hop −1 nine times to <strong>25</strong>.</li>
+        </ol>
+
+        <h4>4. Mix (like a quiz)</h4>
+        <p>About half the problems need trading and half don't. Your child has to notice which kind each one is, the same as on a real test where nobody says whether trading is needed.</p>
+        <ul>
+          <li>No trading: 34 + 15 = 49 and 76 − 12 = 64</li>
+          <li>Trading needed: 27 + 18 = 45 (7 + 8 makes more than 9 ones) and 52 − 19 = 33 (2 ones is not enough to take away 9)</li>
+        </ul>
+        <p>Use Mix with Quiz Time to practice for a quiz or test.</p>
+
+        <h4>5. Biscuit's voice and "Read it to me"</h4>
+        <p>When <strong>Biscuit's voice</strong> (top of the screen) is On, Biscuit reads each problem, each step, each hint and his praise out loud as your child reaches it. When it is Off, your child can still tap a speaker button to hear the problem or the current step. This helps young readers and kids who learn better by hearing. Biscuit's voice is recorded and built into the game, so it works without the internet.</p>
+
+        <h4>6. Biscuit's treats</h4>
+        <p>Every finished problem earns a star. Every 5 stars, Biscuit gets a new treat that he wears or plays with: a bone, a red collar, a ball, a bandana, a party hat and sunglasses, then extra bones after that. The treat shelf on the home screen shows how many stars until the next one.</p>
+
+        <h4>In short</h4>
+        <p>The game teaches 2-digit adding and taking away with blocks, expanded form and a number line, gives mixed practice like a real quiz, reads directions out loud, and rewards progress with treats for Biscuit.</p>
+      </div>
+      <div class="reset-box" id="reset-box">
+        <h4>Clear progress</h4>
+        <p>Sets the stars back to 0 and takes away Biscuit's treats. Settings and Biscuit's voice stay the same.</p>
+        <button type="button" class="back" id="reset-btn">Clear stars and treats</button>
+        <div class="reset-confirm" id="reset-confirm" hidden>
+          <p><strong>Are you sure?</strong> <span id="reset-count"></span> This can't be undone.</p>
+          <label class="reset-code-label" for="reset-code">Enter the grown-up code to confirm</label>
+          <input type="password" id="reset-code" class="reset-code" inputmode="numeric" maxlength="4" autocomplete="off" aria-describedby="reset-msg">
+          <p class="reset-msg" id="reset-msg" role="alert" hidden></p>
+          <div class="reset-actions">
+            <button type="button" class="reset-yes" id="reset-yes">Yes, clear it</button>
+            <button type="button" class="back" id="reset-no">Cancel</button>
+          </div>
+        </div>
+        <p class="reset-done" id="reset-done" role="status" hidden></p>
+      </div>
+      <p>Biscuit's Math Builder version 1.0.3 · © 2026 Virtual Control LLC. All rights reserved. Free from Virtual Control LLC via savagebiz.com.</p>
+    </details>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="wrap" hidden aria-label="Practice">
+    <div class="play-head">
+      <button type="button" class="back" id="back-btn">← Home</button>
+      <span class="mode-name" id="mode-name"></span>
+      <div class="demo-bar">
+        <button type="button" class="watch-btn" id="watch-btn">▶ Watch Biscuit show me</button>
+        <button type="button" class="back" id="pause-btn" hidden>❚❚ Pause</button>
+        <button type="button" class="back" id="replay-btn" hidden>↺ Replay</button>
+        <button type="button" class="back" id="stopdemo-btn" hidden>Stop watching</button>
+      </div>
+    </div>
+    <div class="problem" id="problem" aria-live="polite"></div>
+    <div class="play-grid">
+      <div class="card work" id="work"></div>
+      <div class="card coach">
+        <div class="step-dots" id="step-dots" aria-hidden="true"></div>
+        <div class="pup-row">
+          <div data-pup id="pup-play" aria-hidden="true"></div>
+          <div class="bubble">
+            <p class="coach-text" id="coach-text" aria-live="polite"></p>
+            <button type="button" class="say" id="say-step" aria-label="Read it to me">
+              <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="controls" class="coach"></div>
+        <div id="feedback" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="treat-pop" id="treat-pop" role="status" hidden>
+  <div id="treat-pop-icon" aria-hidden="true"></div>
+  <p id="treat-pop-msg"></p>
+  <button type="button" class="big-btn" id="treat-pop-ok">Yay!</button>
+</div>
+
+<script src="voice.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const SIGN = { add: "+", sub: "−" };
+  const STAR = '<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>';
+  const MODE_NAMES = { blocks: "Base Ten Blocks", expanded: "Expanded Form", line: "Number Line", quiz: "Quiz Time" };
+  const QUIZ_LEN = 10;
+  const STORE_KEY = "biscuitsMathBuilder.v1";
+
+  // ---------- saved settings (per browser, optional) ----------
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ stars: S.stars, op: S.op, level: S.level, voice: S.voice })); } catch (e) { /* storage blocked: keep playing */ }
+  }
+  const saved = load();
+  const S = {
+    op: saved.op === "sub" ? "sub" : "add",
+    level: saved.level === "easy" || saved.level === "mix" ? saved.level : "hard",
+    stars: Number.isFinite(saved.stars) && saved.stars >= 0 ? Math.floor(saved.stars) : 0,
+    voice: saved.voice !== false,
+    mode: null, a: 0, b: 0
+  };
+  let lastKey = "";
+
+  // ---------- problem maker ----------
+  // Second number is always 11-49 style (1-4 tens) so the number line stays readable.
+  function makeProblem(op, chosen) {
+    for (let k = 0; k < 60; k++) {
+      const level = chosen === "mix" ? (Math.random() < 0.5 ? "easy" : "hard") : chosen;
+      const bt = rnd(1, 4);
+      let at, ao, bo;
+      if (op === "add") {
+        if (level === "hard") { ao = rnd(1, 9); bo = rnd(10 - ao, 9); at = rnd(1, 8 - bt); }   // ones make 10+, total ≤ 99
+        else { ao = rnd(0, 8); bo = rnd(1, 9 - ao); at = rnd(1, 9 - bt); }                     // no trading
+      } else {
+        if (level === "hard") { bo = rnd(1, 9); ao = rnd(0, bo - 1); at = rnd(bt + 1, 9); }      // must break a ten
+        else { bo = rnd(0, 9); ao = rnd(bo, 9); at = rnd(bt + 1, 9); }                         // no trading
+      }
+      const a = at * 10 + ao, b = bt * 10 + bo;
+      const key = op + a + "," + b;
+      if (key !== lastKey) { lastKey = key; return { a, b }; }
+    }
+    return { a: 52, b: 19 };
+  }
+  const answer = () => (S.op === "add" ? S.a + S.b : S.a - S.b);
+  const tensWord = (n) => (n === 1 ? "1 ten" : n + " tens");
+  const onesWord = (n) => (n === 1 ? "1 one" : n + " ones");
+
+  function breakdown(a, b, op) {
+    const at = Math.floor(a / 10), ao = a % 10, bt = Math.floor(b / 10), bo = b % 10;
+    if (op === "add") {
+      const T = (at + bt) * 10, O = ao + bo;
+      return `Tens: ${at * 10} + ${bt * 10} = ${T}. Ones: ${ao} + ${bo} = ${O}. Together: ${T} + ${O} = ${a + b}.`;
+    }
+    if (ao < bo) {
+      const T = (at - 1 - bt) * 10, O = ao + 10 - bo;
+      return `Trade a ten: ${a} = ${(at - 1) * 10} + ${ao + 10}. Tens: ${(at - 1) * 10} − ${bt * 10} = ${T}. Ones: ${ao + 10} − ${bo} = ${O}. Together: ${T} + ${O} = ${a - b}.`;
+    }
+    const T = (at - bt) * 10, O = ao - bo;
+    return `Tens: ${at * 10} − ${bt * 10} = ${T}. Ones: ${ao} − ${bo} = ${O}. Together: ${T} + ${O} = ${a - b}.`;
+  }
+
+  // ---------- speech ----------
+  // Biscuit's voice is pre-recorded (a young child's voice) in voice.js as one clip per
+  // phrase and one per number. A sentence is split into those pieces and played back to back.
+  // If any piece has no recording (or voice.js is missing), the computer's own voice is used.
+  const VOICE = window.BISCUIT_VOICE || null;
+  function spokenText(text) {
+    return String(text)
+      .replace(/=\s*\?/g, " equals what?")
+      .replace(/−/g, " minus ").replace(/\+/g, " plus ").replace(/=/g, " equals ");
+  }
+  function voiceTokens(text) {
+    const out = [];
+    spokenText(text).split(/(\d+)/).forEach((part) => {
+      if (/^\d+$/.test(part)) { out.push({ key: "#" + Number(part), say: String(Number(part)) }); return; }
+      (part.match(/[^.!?]+[.!?]*|[.!?]+/g) || []).forEach((s) => {
+        const say = s.replace(/[()…:;"]/g, " ").replace(/\s+/g, " ").trim();
+        const key = say.toLowerCase().replace(/[^a-z' ]/g, "").replace(/\s+/g, " ").trim();
+        if (key) out.push({ key, say });
+      });
+    });
+    return out;
+  }
+
+  let actx = null, playGen = 0, live = [];
+  const bufCache = new Map();
+  function audioCtx() {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      actx = new C();
+    }
+    if (actx.state === "suspended") actx.resume().catch(() => {});
+    return actx;
+  }
+  // Browsers only allow sound after a tap, so wake the audio on the first tap.
+  document.addEventListener("pointerdown", () => { if (VOICE) audioCtx(); }, { passive: true });
+  function b64ToBuf(b64) {
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u.buffer;
+  }
+  function trimSilence(buf) {
+    const d = buf.getChannelData(0), th = 0.008;
+    let s = 0, e = d.length - 1;
+    while (s < e && Math.abs(d[s]) < th) s++;
+    while (e > s && Math.abs(d[e]) < th) e--;
+    const pad = Math.floor(buf.sampleRate * 0.025);
+    s = Math.max(0, s - pad); e = Math.min(d.length - 1, e + pad);
+    const out = actx.createBuffer(buf.numberOfChannels, e - s + 1, buf.sampleRate);
+    for (let c = 0; c < buf.numberOfChannels; c++) out.copyToChannel(buf.getChannelData(c).subarray(s, e + 1), c);
+    return out;
+  }
+  function getBuf(key) {
+    if (!bufCache.has(key)) {
+      const p = new Promise((res, rej) => actx.decodeAudioData(b64ToBuf(VOICE[key]), res, rej)).then(trimSilence);
+      p.catch(() => bufCache.delete(key));
+      bufCache.set(key, p);
+    }
+    return bufCache.get(key);
+  }
+  function stopVoice() {
+    playGen++;
+    live.forEach((n) => { try { n.stop(); } catch (e) { /* already stopped */ } });
+    live = [];
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+  }
+  let tapNode = null;   // build tooling only: also sends Biscuit's voice to a recorder (see __biscuit.tapStart)
+  // Plays the clips back to back. Resolves with {gen, end} (end = audio clock time when he stops talking),
+  // or null when sound can't play here.
+  async function playClips(toks) {
+    stopVoice();
+    const gen = playGen;
+    const ctx = audioCtx();
+    if (!ctx) return null;
+    let bufs;
+    try { bufs = await Promise.all(toks.map((t) => getBuf(t.key))); } catch (e) { return null; }
+    if (gen !== playGen) return { gen, end: 0 };   // something newer started talking
+    let t = ctx.currentTime + 0.05;
+    bufs.forEach((b, i) => {
+      const src = ctx.createBufferSource();
+      src.buffer = b; src.connect(ctx.destination);
+      if (tapNode) src.connect(tapNode);
+      src.start(t);
+      live.push(src);
+      t += b.duration + (/[.!?]$/.test(toks[i].say) ? 0.22 : 0.05);
+    });
+    return { gen, end: t };
+  }
+  // Resolves when the clips finish, when something else starts talking, or when he is stopped.
+  // While the audio is paused (demo Pause button), the audio clock stops, so this keeps waiting.
+  function waitClips(info) {
+    return new Promise((res) => {
+      const tick = () => {
+        if (!info || info.gen !== playGen || !actx || actx.currentTime >= info.end) { res(); return; }
+        setTimeout(tick, 80);
+      };
+      tick();
+    });
+  }
+  function computerVoice(text) {
+    return new Promise((res) => {
+      try {
+        if (!("speechSynthesis" in window)) { res(); return; }
+        const u = speechUtterance(text);
+        if (!u) { res(); return; }
+        let doneOnce = false;
+        const done = () => { if (!doneOnce) { doneOnce = true; res(); } };
+        u.onend = done; u.onerror = done;
+        setTimeout(done, 1500 + spokenText(text).length * 90);   // never wait forever
+        window.speechSynthesis.speak(u);
+      } catch (e) { res(); }
+    });
+  }
+  function speechUtterance(text) {
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(spokenText(text));
+      const voices = window.speechSynthesis.getVoices();
+      const natural = voices.find((x) => /Ana.*Natural/i.test(x.name)) || voices.find((x) => /^en(-|_)US/i.test(x.lang) && /Natural/i.test(x.name));
+      const v = natural || voices.find((x) => /^en(-|_)US/i.test(x.lang));
+      if (v) u.voice = v;
+      u.rate = 0.92;
+      u.pitch = natural ? 1.1 : 1.45;
+      return u;
+    } catch (e) { return null; }
+  }
+  // Says the text. Returns a promise that resolves when Biscuit has finished saying it.
+  function speak(text) {
+    const toks = voiceTokens(text);
+    if (VOICE && toks.length && toks.every((t) => VOICE[t.key])) {
+      return playClips(toks).then((info) => (info ? waitClips(info) : computerVoice(text)));
+    }
+    if (VOICE) console.debug("Biscuit voice: no recording for", toks.filter((t) => !VOICE[t.key]).map((t) => t.say));
+    stopVoice();
+    return computerVoice(text);
+  }
+  // Biscuit talks on his own only when his voice is on; speaker buttons always work.
+  function talk(text) { if (S.voice) speak(text); }
+
+  // ---------- Biscuit the puppy ----------
+  // Treat drawings, shared by Biscuit (in his 120x120 picture) and the shelf icons.
+  const BONE = `<circle cx="-10" cy="-3.5" r="4" fill="var(--bone)" stroke="var(--bone-edge)"/><circle cx="-10" cy="3.5" r="4" fill="var(--bone)" stroke="var(--bone-edge)"/>
+    <circle cx="10" cy="-3.5" r="4" fill="var(--bone)" stroke="var(--bone-edge)"/><circle cx="10" cy="3.5" r="4" fill="var(--bone)" stroke="var(--bone-edge)"/>
+    <rect x="-11" y="-3" width="22" height="6" rx="3" fill="var(--bone)"/>`;
+  const BALL = `<circle cx="0" cy="0" r="8" fill="var(--ball)"/><path d="M-7 -4 Q0 2 7 -4" fill="none" stroke="var(--ball-seam)" stroke-width="1.6"/>`;
+  const TREATS = [
+    { id: "bone", name: "a yummy bone", short: "Bone",
+      icon: `<g transform="translate(20 20) rotate(-20) scale(1.25)">${BONE}</g>` },
+    { id: "collar", name: "a shiny red collar", short: "Red collar",
+      icon: `<path d="M6 14 Q20 30 34 14" fill="none" stroke="var(--collar)" stroke-width="5" stroke-linecap="round"/><circle cx="20" cy="27" r="5" fill="var(--tag)"/>` },
+    { id: "ball", name: "a bouncy ball", short: "Ball",
+      icon: `<g transform="translate(20 20) scale(2)">${BALL}</g>` },
+    { id: "bandana", name: "a cool blue bandana", short: "Bandana",
+      icon: `<path d="M4 10 H36 L20 34 Z" fill="var(--bandana)"/><circle cx="14" cy="15" r="1.8" fill="var(--ball-seam)"/><circle cx="24" cy="20" r="1.8" fill="var(--ball-seam)"/><circle cx="20" cy="12" r="1.8" fill="var(--ball-seam)"/>` },
+    { id: "hat", name: "a party hat", short: "Party hat",
+      icon: `<path d="M8 36 L32 36 L20 6 Z" fill="var(--hat)"/><circle cx="20" cy="6" r="4" fill="var(--tag)"/><path d="M13 26 L27 26" stroke="var(--tag)" stroke-width="2"/>` },
+    { id: "shades", name: "cool sunglasses", short: "Sunglasses",
+      icon: `<rect x="3" y="14" width="14" height="11" rx="4" fill="var(--shades)"/><rect x="23" y="14" width="14" height="11" rx="4" fill="var(--shades)"/><path d="M17 18 H23" stroke="var(--shades)" stroke-width="2.5"/>` }
+  ];
+  const STARS_PER_TREAT = 5;
+
+  const PUP_SVG = `<svg class="pup" viewBox="0 0 120 120">
+    <g class="acc acc-ball"><g transform="translate(13 110)">${BALL}</g></g>
+    <g class="pup-tail"><path d="M92 84 Q110 78 110 58" fill="none" stroke="var(--pup-ear)" stroke-width="8" stroke-linecap="round"/></g>
+    <ellipse cx="70" cy="92" rx="30" ry="19" fill="var(--pup)"/>
+    <rect x="48" y="96" width="10" height="20" rx="5" fill="var(--pup)"/>
+    <rect x="64" y="96" width="10" height="20" rx="5" fill="var(--pup)"/>
+    <ellipse cx="53" cy="116" rx="7" ry="4" fill="var(--pup-muzzle)"/>
+    <ellipse cx="69" cy="116" rx="7" ry="4" fill="var(--pup-muzzle)"/>
+    <g class="acc acc-bone"><g transform="translate(98 112) rotate(-15) scale(.8)">${BONE}</g></g>
+    <g class="acc acc-bandana"><path d="M34 70 L70 70 L52 94 Z" fill="var(--bandana)"/><circle cx="45" cy="76" r="1.6" fill="var(--ball-seam)"/><circle cx="58" cy="77" r="1.6" fill="var(--ball-seam)"/><circle cx="52" cy="85" r="1.6" fill="var(--ball-seam)"/></g>
+    <g class="pup-head">
+      <ellipse cx="27" cy="46" rx="11" ry="21" fill="var(--pup-ear)" transform="rotate(18 27 46)"/>
+      <ellipse cx="77" cy="46" rx="11" ry="21" fill="var(--pup-ear)" transform="rotate(-18 77 46)"/>
+      <circle cx="52" cy="48" r="28" fill="var(--pup)"/>
+      <ellipse cx="63" cy="43" rx="10" ry="9" fill="var(--pup-ear)" opacity=".55"/>
+      <ellipse cx="52" cy="61" rx="15" ry="11" fill="var(--pup-muzzle)"/>
+      <circle cx="42" cy="44" r="4" fill="var(--pup-nose)"/><circle cx="43.3" cy="42.7" r="1.3" fill="#fff"/>
+      <circle cx="62" cy="44" r="4" fill="var(--pup-nose)"/><circle cx="63.3" cy="42.7" r="1.3" fill="#fff"/>
+      <ellipse cx="52" cy="55" rx="5.5" ry="4" fill="var(--pup-nose)"/>
+      <path d="M45 62 Q52 68 59 62" fill="none" stroke="var(--pup-nose)" stroke-width="2" stroke-linecap="round"/>
+      <ellipse class="pup-tongue" cx="52" cy="68" rx="4" ry="5" fill="var(--pup-tongue)"/>
+      <g class="acc acc-shades"><rect x="34" y="38.5" width="15" height="11" rx="4" fill="var(--shades)"/><rect x="55" y="38.5" width="15" height="11" rx="4" fill="var(--shades)"/><path d="M49 43 H55" stroke="var(--shades)" stroke-width="2.2"/></g>
+      <g class="acc acc-hat"><path d="M36 25 L60 20 L46 0 Z" fill="var(--hat)"/><circle cx="46" cy="0" r="4" fill="var(--tag)"/><path d="M41 15 L53 13" stroke="var(--tag)" stroke-width="2"/></g>
+    </g>
+    <g class="acc acc-collar"><path d="M33 72 Q52 82 71 72" fill="none" stroke="var(--collar)" stroke-width="6" stroke-linecap="round"/><circle cx="52" cy="82" r="4.5" fill="var(--tag)"/></g>
+  </svg>`;
+  document.querySelectorAll("[data-pup]").forEach((el) => (el.innerHTML = PUP_SVG));
+  let moodTimer = 0;
+  function pupMood(mood, ms) {
+    const p = document.querySelector("#pup-play .pup");
+    if (!p) return;
+    clearTimeout(moodTimer);
+    p.classList.remove("happy", "think");
+    void p.getBoundingClientRect(); // restart the animation if the same mood repeats
+    p.classList.add(mood);
+    moodTimer = setTimeout(() => p.classList.remove(mood), ms);
+  }
+  const CHEER = ["Yes!", "You got it!", "Good thinking!", "Woof! That's right!", "Great counting!"];
+  const COMFORT = ["That's okay!", "Almost! Let's try again.", "Mistakes help your brain grow!", "No worries, I'll help you.", "Good try! Let's look again."];
+  const pick = (arr) => arr[rnd(0, arr.length - 1)];
+
+  // ---------- treats: one every 5 stars ----------
+  const treatsEarned = () => Math.floor(S.stars / STARS_PER_TREAT);
+  function dressPup() {
+    const n = treatsEarned();
+    document.querySelectorAll(".pup").forEach((p) => TREATS.forEach((t, i) => p.classList.toggle("has-" + t.id, i < n)));
+  }
+  function renderShelf() {
+    const n = treatsEarned();
+    const left = (n + 1) * STARS_PER_TREAT - S.stars;
+    const extraBones = Math.max(0, n - TREATS.length);
+    $("#shelf-next").textContent = `${left} more ${left === 1 ? "star" : "stars"} until Biscuit's next treat!` +
+      (extraBones ? ` Extra bones: ${extraBones}` : "");
+    $("#shelf-meter").style.width = `${((S.stars % STARS_PER_TREAT) / STARS_PER_TREAT) * 100}%`;
+    $("#treats").innerHTML = TREATS.map((t, i) => {
+      const got = i < n;
+      return `<div class="treat ${got ? "got" : "locked"}" title="${got ? t.short : (i + 1) * STARS_PER_TREAT + " stars"}">
+        <svg viewBox="0 0 40 40" aria-hidden="true">${t.icon}</svg>
+        <span>${got ? t.short : (i + 1) * STARS_PER_TREAT + " ★"}</span></div>`;
+    }).join("");
+  }
+  // Returns the sentence to say when a new treat was just earned, or "".
+  function treatNews(n) {
+    if (n <= TREATS.length) return `Woof! Biscuit got ${TREATS[n - 1].name}!`;
+    return `Woof! Biscuit got an extra bone! That's ${n - TREATS.length} extra ${n - TREATS.length === 1 ? "bone" : "bones"}!`;
+  }
+  function showTreatPop(n, msg) {
+    const t = TREATS[Math.min(n, TREATS.length) - 1];
+    $("#treat-pop-icon").innerHTML = `<svg viewBox="0 0 40 40">${n <= TREATS.length ? t.icon : TREATS[0].icon}</svg>`;
+    $("#treat-pop-msg").textContent = msg;
+    $("#treat-pop").hidden = false;
+    $("#treat-pop-ok").focus();
+  }
+  $("#treat-pop-ok").addEventListener("click", () => { $("#treat-pop").hidden = true; });
+
+  // ---------- stars + confetti ----------
+  function setStars() { $("#star-count").textContent = S.stars; }
+  // Adds a star. If that star earns Biscuit a treat, dresses him, pops up the treat and returns the news to say.
+  function addStar() {
+    const before = Math.floor(S.stars / 5);
+    S.stars += 1; setStars(); save();
+    const after = Math.floor(S.stars / 5);
+    if (after <= before) return "";
+    const news = treatNews(after);
+    dressPup(); renderShelf();
+    showTreatPop(after, news);
+    return " " + news;
+  }
+  const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function confetti() {
+    if (reduceMotion()) return;
+    const c = $("#confetti"), ctx = c.getContext("2d");
+    const W = (c.width = window.innerWidth), H = (c.height = window.innerHeight);
+    const cs = getComputedStyle(document.documentElement);
+    const colors = ["--a", "--b", "--t", "--gone"].map((v) => cs.getPropertyValue(v).trim() || "#F2A516");
+    const parts = Array.from({ length: 90 }, () => ({
+      x: W / 2 + rnd(-60, 60), y: H * 0.35, vx: (Math.random() - 0.5) * 14, vy: -Math.random() * 13 - 4,
+      s: rnd(6, 12), r: Math.random() * 6, col: colors[rnd(0, colors.length - 1)]
+    }));
+    let f = 0;
+    (function tick() {
+      ctx.clearRect(0, 0, W, H);
+      parts.forEach((p) => { p.vy += 0.45; p.x += p.vx; p.y += p.vy; p.r += 0.15;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); });
+      if (++f < 80) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+    })();
+  }
+
+  // ---------- step engine ----------
+  // Each mode builds a list of steps. Step kinds: "button" (press to continue),
+  // "input" (type a number), "hops" (number-line jumps).
+  let run = null;
+  let buf = "";
+
+  function startSteps(steps) {
+    run = { steps, i: 0, wrongs: 0, done: false };
+    showStep();
+  }
+  function cur() { return run && !run.done ? run.steps[run.i] : null; }
+
+  function renderDots() {
+    $("#step-dots").innerHTML = run.steps.map((_, k) => `<span class="${k < run.i || run.done ? "on" : ""}"></span>`).join("");
+  }
+
+  function showStep() {
+    const st = cur();
+    if (!st) return;
+    run.wrongs = 0;
+    buf = "";
+    if (st.enter) st.enter();
+    renderDots();
+    $("#coach-text").textContent = st.text;
+    clearFeedback();
+    if (!S.demo) talk(st.text);   // in a demo, the demo runner does the talking
+    const c = $("#controls");
+    if (st.kind === "input") {
+      c.innerHTML = answerHTML(st.prompt || "Type your answer");
+      wirePad(c);
+      syncAnswer();
+    } else if (st.kind === "button") {
+      c.innerHTML = `<button type="button" class="big-btn" id="step-btn">${st.label}</button>`;
+      const btn = $("#step-btn");
+      const myRun = run;
+      btn.addEventListener("click", () => {
+        btn.disabled = true;
+        // If the player went Home (or started a new problem) during the animation, don't advance a stale run.
+        const go = () => { if (run === myRun && !run.done) next(); };
+        if (st.action) st.action(go); else go();
+      });
+    } else if (st.kind === "hops") {
+      st.render(c);
+    }
+  }
+
+  function clearFeedback() { const fb = $("#feedback"); fb.className = ""; fb.textContent = ""; }
+
+  function answerHTML(placeholder) {
+    return `<div class="ans-row"><div class="ans empty" id="ans" data-ph="${placeholder}">${placeholder}</div></div>
+      <div class="pad" id="pad">
+        ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}
+        <button type="button" data-k="del" aria-label="Delete">⌫</button>
+        <button type="button" data-k="0">0</button>
+        <button type="button" data-k="ok" class="ok">Check</button>
+      </div>`;
+  }
+  function wirePad(root) {
+    root.querySelectorAll("#pad button").forEach((b) => b.addEventListener("click", () => press(b.dataset.k)));
+  }
+  function press(k) {
+    const st = cur();
+    if (!st || st.kind !== "input") return;
+    if (k === "del") buf = buf.slice(0, -1);
+    else if (k === "ok") { check(); return; }
+    else if (/^\d$/.test(k) && buf.length < 3) buf = (buf === "0" ? "" : buf) + k;
+    syncAnswer();
+  }
+  function syncAnswer() {
+    const el = $("#ans");
+    if (!el) return;
+    el.textContent = buf || el.dataset.ph;
+    el.classList.toggle("empty", !buf);
+    const st = cur();
+    if (st && st.slot != null) {
+      const s = document.getElementById("slot-" + st.slot);
+      if (s) s.textContent = buf || "?";
+    }
+  }
+
+  function check() {
+    const st = cur();
+    if (!st) return;
+    const fb = $("#feedback");
+    if (buf === "") { fb.className = "fb info"; fb.textContent = "Type a number first, then press Check."; return; }
+    const val = parseInt(buf, 10);
+    if (val === st.expect) {
+      if (st.after) st.after();
+      const myRun = run;
+      next();
+      if (run === myRun && !run.done) {
+        const fb2 = $("#feedback");
+        fb2.className = "fb good";
+        fb2.textContent = pick(CHEER);
+        pupMood("happy", 1000);
+      }
+      return;
+    }
+    pupMood("think", 1800);
+    run.wrongs += 1;
+    const el = $("#ans");
+    if (el) { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+    if (S.mode === "quiz" && run.wrongs >= 2) { quizReveal(); return; }
+    const hint = typeof st.hint === "function" ? st.hint(val) : st.hint;
+    fb.className = "fb oops";
+    fb.textContent = `${pick(COMFORT)} ${hint || "Try again!"}`;
+    talk(fb.textContent);
+    buf = "";
+    syncAnswer();
+  }
+
+  function next() {
+    run.i += 1;
+    if (run.i >= run.steps.length) { finish(); return; }
+    showStep();
+  }
+
+  document.addEventListener("keydown", (e) => {
+    const st = cur();
+    if (!st || st.kind !== "input" || $("#play").hidden || S.demo) return;
+    if (/^\d$/.test(e.key)) { press(e.key); e.preventDefault(); }
+    else if (e.key === "Backspace") { press("del"); e.preventDefault(); }
+    else if (e.key === "Enter") { press("ok"); e.preventDefault(); }
+  });
+
+  // ---------- finishing a problem ----------
+  const PRAISE = ["You did it!", "Awesome building!", "Super math brain!", "Great job, friend!", "Nailed it!", "Way to go!"];
+  function finish() {
+    run.done = true;
+    renderDots();
+    $("#problem .q").textContent = answer();
+    if (S.demo) { demoFinished(); return; }   // demos don't earn stars
+    if (S.mode === "quiz") { quizRight(); return; }
+    const news = addStar();
+    confetti();
+    pupMood("happy", 1600);
+    const msg = PRAISE[rnd(0, PRAISE.length - 1)];
+    $("#coach-text").textContent = `${msg} ${S.a} ${SIGN[S.op]} ${S.b} = ${answer()}. You earned a star!${news}`;
+    talk($("#coach-text").textContent);
+    clearFeedback();
+    $("#controls").innerHTML = `<button type="button" class="big-btn" id="next-btn">Next problem →</button>`;
+    $("#next-btn").addEventListener("click", newProblem);
+    $("#next-btn").focus();
+  }
+
+  // ---------- screens ----------
+  function showHome() {
+    endDemo();
+    S.mode = null; run = null;
+    stopVoice();
+    $("#play").hidden = true; $("#home").hidden = false;
+    $("#treat-pop").hidden = true;
+    syncChoices();
+    renderShelf();
+  }
+  function syncChoices() {
+    $("#op-add").setAttribute("aria-pressed", String(S.op === "add"));
+    $("#op-sub").setAttribute("aria-pressed", String(S.op === "sub"));
+    $("#lvl-easy").setAttribute("aria-pressed", String(S.level === "easy"));
+    $("#lvl-hard").setAttribute("aria-pressed", String(S.level === "hard"));
+    $("#lvl-mix").setAttribute("aria-pressed", String(S.level === "mix"));
+  }
+  function startMode(mode) {
+    S.mode = mode;
+    $("#home").hidden = true; $("#play").hidden = false;
+    if (mode === "quiz") startQuiz(); else newProblem();
+    syncDemoBar();
+    window.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
+  }
+  function renderProblem() {
+    $("#problem").innerHTML = `<span class="na">${S.a}</span><span>${SIGN[S.op]}</span><span class="nb">${S.b}</span><span>=</span><span class="q">?</span>
+      <button type="button" class="say" id="say-prob" aria-label="Read the problem to me"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>`;
+    $("#say-prob").addEventListener("click", () => speak(`${S.a} ${SIGN[S.op]} ${S.b} = ?`));
+  }
+  function startBuilder() {
+    if (S.mode === "blocks") startSteps(blocksSteps());
+    else if (S.mode === "expanded") startSteps(expandedSteps());
+    else if (S.mode === "line") startSteps(lineSteps());
+  }
+  function newProblem() {
+    endDemo();
+    const p = makeProblem(S.op, S.level);
+    S.a = p.a; S.b = p.b;
+    renderProblem();
+    startBuilder();
+  }
+
+  // ---------- WATCH BISCUIT: he solves the example by himself, like a video ----------
+  const DEMO = {
+    add: { blocks: [52, 19], expanded: [59, 12], line: [25, 19] },
+    sub: { blocks: [52, 19], expanded: [52, 19], line: [44, 19] }
+  };
+  let demoGen = 0, demoPaused = false;
+  const demoAlive = (g) => g === demoGen && S.demo;
+  // Waits ms of demo time; the clock stops while paused.
+  function demoWait(ms, g) {
+    return new Promise((res) => {
+      let left = ms;
+      const tick = () => {
+        if (!demoAlive(g)) { res(); return; }
+        if (!demoPaused) left -= 50;
+        if (left <= 0) res(); else setTimeout(tick, 50);
+      };
+      tick();
+    });
+  }
+  async function demoSay(text, g) {
+    while (demoPaused && demoAlive(g)) await demoWait(100, g);
+    if (!demoAlive(g)) return;
+    await speak(text);
+  }
+  function syncDemoBar() {
+    const watching = !!S.demo, canWatch = S.mode && S.mode !== "quiz";
+    $("#watch-btn").hidden = watching || !canWatch;
+    $("#pause-btn").hidden = !watching;
+    $("#replay-btn").hidden = !watching;
+    $("#stopdemo-btn").hidden = !watching;
+    $("#pause-btn").textContent = demoPaused ? "▶ Keep going" : "❚❚ Pause";
+    $("#play").classList.toggle("demo", watching);
+    $("#mode-name").innerHTML = `${MODE_NAMES[S.mode] || ""} · ${S.op === "add" ? "Adding" : "Taking away"}` +
+      (watching ? ` <span class="demo-tag">Biscuit is showing you</span>` : "");
+  }
+  function endDemo() {
+    if (!S.demo) return;
+    S.demo = false; demoGen++; demoPaused = false;
+    $("#controls").style.pointerEvents = "";
+    if (actx && actx.state === "suspended") actx.resume().catch(() => {});
+    stopVoice();
+    syncDemoBar();
+  }
+  async function runDemo() {
+    endDemo();
+    const g = ++demoGen;
+    S.demo = true; demoPaused = false;
+    syncDemoBar();
+    [S.a, S.b] = DEMO[S.op][S.mode];
+    renderProblem();
+    startBuilder();
+    await demoSay(`Watch me solve it! ${S.a} ${SIGN[S.op]} ${S.b} = ?`, g);
+    while (demoAlive(g) && run && !run.done) {
+      const st = cur();
+      const at = run.i;
+      await demoSay(st.text, g);
+      if (!demoAlive(g)) return;
+      if (st.kind === "button") {
+        await demoWait(500, g);
+        const btn = $("#step-btn");
+        if (btn && demoAlive(g)) btn.click();
+      } else if (st.kind === "input") {
+        await demoWait(500, g);
+        for (const ch of String(st.expect)) { if (!demoAlive(g)) return; press(ch); await demoWait(350, g); }
+        await demoSay(String(st.expect), g);
+        if (demoAlive(g)) press("ok");
+      } else if (st.kind === "hops") {
+        // Adding: +1 hops first, then +10. Taking away: jump -10 first, then -1 hops.
+        const order = S.op === "add" ? ["#hop1", "#hop10"] : ["#hop10", "#hop1"];
+        for (const sel of order) {
+          while (demoAlive(g) && $(sel) && !$(sel).disabled) {
+            $(sel).click();
+            const m = /You are at: (\d+)/.exec($("#work").textContent);
+            if (m) await demoSay(m[1], g);
+            await demoWait(250, g);
+          }
+        }
+      }
+      // wait for the step to move on (button animations take a moment)
+      while (demoAlive(g) && run && !run.done && run.i === at) await demoWait(100, g);
+      await demoWait(400, g);
+    }
+  }
+  function demoFinished() {
+    const g = demoGen;
+    const line = `So ${S.a} ${SIGN[S.op]} ${S.b} = ${answer()}. Now you try!`;
+    $("#coach-text").textContent = line;
+    clearFeedback();
+    pupMood("happy", 1600);
+    $("#controls").innerHTML = `<button type="button" class="big-btn" id="now-try-btn">Now you try!</button>`;
+    $("#controls").style.pointerEvents = "auto";
+    $("#now-try-btn").addEventListener("click", newProblem);
+    demoSay(line, g).then(() => { if (demoAlive(g)) demoDoneGen = g; });
+  }
+  let demoDoneGen = -1;
+  $("#watch-btn").addEventListener("click", () => { audioCtx(); runDemo(); });
+  $("#replay-btn").addEventListener("click", () => { audioCtx(); runDemo(); });
+  $("#stopdemo-btn").addEventListener("click", newProblem);
+  $("#pause-btn").addEventListener("click", () => {
+    demoPaused = !demoPaused;
+    if (actx) { if (demoPaused) actx.suspend().catch(() => {}); else actx.resume().catch(() => {}); }
+    try { if (demoPaused) window.speechSynthesis.pause(); else window.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+    syncDemoBar();
+  });
+
+  // ---------- BASE TEN BLOCKS ----------
+  let M = { tens: [], ones: [] };
+  function renderMat(extra) {
+    // Blocks that are leaving are drawn normally first, then get the "leave" class on the next frames so the move animates.
+    const blk = (x, cls) => `<span class="${cls} c-${x.c}${x.gone ? " gone" : ""}${x.fresh ? " fresh" : ""}"${x.leave ? " data-leave" : ""}></span>`;
+    const tl = M.tens.filter((x) => !x.gone && !x.leave).length, ol = M.ones.filter((x) => !x.gone && !x.leave).length;
+    $("#work").innerHTML = `
+      <div class="mat" role="img" aria-label="${tensWord(tl)} and ${onesWord(ol)} on the mat">
+        <div class="col"><div class="col-h">Tens</div><div class="tens">${M.tens.map((x) => blk(x, "rod")).join("")}</div></div>
+        <div class="col"><div class="col-h">Ones</div><div class="ones">${M.ones.map((x) => blk(x, "cube")).join("")}</div></div>
+      </div>
+      <div class="legend">${extra}</div>`;
+    M.tens.forEach((x) => (x.fresh = false));
+    M.ones.forEach((x) => (x.fresh = false));
+    requestAnimationFrame(() => requestAnimationFrame(() =>
+      document.querySelectorAll("#work [data-leave]").forEach((el) => el.classList.add("leave"))));
+  }
+  const fill = (n, c) => Array.from({ length: n }, () => ({ c }));
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion() ? 0 : ms));
+
+  function blocksSteps() {
+    const a = S.a, b = S.b;
+    const at = Math.floor(a / 10), ao = a % 10, bt = Math.floor(b / 10), bo = b % 10;
+    const legendAdd = `<span><i style="background:var(--a)"></i>${a}</span><span><i style="background:var(--b)"></i>${b}</span><span><i style="background:var(--t)"></i>traded</span>`;
+    const legendSub = `<span><i style="background:var(--a)"></i>${a}</span><span><i style="background:var(--t)"></i>traded</span><span><i style="background:var(--gone)"></i>taken away</span>`;
+    const steps = [];
+    if (S.op === "add") {
+      M = { tens: fill(at, "a").concat(fill(bt, "b")), ones: fill(ao, "a").concat(fill(bo, "b")) };
+      const draw = () => renderMat(legendAdd);
+      const ones = ao + bo, carry = ones >= 10 ? 1 : 0;
+      steps.push({ kind: "button", enter: draw, label: "Got it!",
+        text: `Blue is ${a}: ${tensWord(at)} and ${onesWord(ao)}. Green is ${b}: ${tensWord(bt)} and ${onesWord(bo)}.` });
+      steps.push({ kind: "input", text: "Count all the little cubes. How many ones are there?", prompt: "How many ones?", expect: ones,
+        hint: `Count the blue cubes (${ao}) and the green cubes (${bo}). ${ao} + ${bo} = ?` });
+      if (carry) {
+        steps.push({ kind: "button", label: "Trade 10 ones for a ten",
+          text: `${ones} ones is too many for the ones place! 10 ones make 1 ten. Let's trade.`,
+          action: async (done) => {
+            for (let k = 0; k < 10; k++) M.ones[k].leave = true;
+            draw(); await wait(650);
+            M.ones = M.ones.filter((x) => !x.leave);
+            M.tens.push({ c: "t", fresh: true });
+            draw(); await wait(450); done();
+          } });
+        steps.push({ kind: "input", text: "Now count the long rods. How many tens are there?", prompt: "How many tens?", expect: at + bt + 1,
+          hint: "Count every rod. Don't forget the new yellow one!" });
+        steps.push({ kind: "input", text: "How many little cubes are left?", prompt: "How many ones?", expect: ones - 10,
+          hint: `You had ${ones} ones and traded 10 away. ${ones} − 10 = ?` });
+      } else {
+        steps.push({ kind: "input", text: "Now count the long rods. How many tens are there?", prompt: "How many tens?", expect: at + bt,
+          hint: `Count the blue rods (${at}) and the green rods (${bt}).` });
+      }
+      const T = at + bt + carry, O = ones - carry * 10;
+      steps.push({ kind: "input", text: `${tensWord(T)} and ${onesWord(O)}. What number is that? ${a} + ${b} = ?`, prompt: "Answer", expect: a + b,
+        hint: `${tensWord(T)} is ${T * 10}. ${T * 10} + ${O} = ?` });
+    } else {
+      M = { tens: fill(at, "a"), ones: fill(ao, "a") };
+      const draw = () => renderMat(legendSub);
+      const borrow = ao < bo ? 1 : 0;
+      steps.push({ kind: "button", enter: draw, label: "Got it!",
+        text: `Start with ${a}: ${tensWord(at)} and ${onesWord(ao)}. We will take away ${b}: ${tensWord(bt)} and ${onesWord(bo)}.` });
+      if (borrow) {
+        steps.push({ kind: "button", label: "Break a ten into 10 ones",
+          text: `We need to take away ${onesWord(bo)}, but ${ao === 0 ? "there are no ones" : ao === 1 ? "there is only 1" : "there are only " + ao}. Break 1 ten into 10 ones!`,
+          action: async (done) => {
+            M.tens[M.tens.length - 1].leave = true;
+            draw(); await wait(650);
+            M.tens.pop();
+            M.ones = M.ones.concat(Array.from({ length: 10 }, () => ({ c: "t", fresh: true })));
+            draw(); await wait(450); done();
+          } });
+      }
+      if (bo > 0) {
+        steps.push({ kind: "button", label: `Take away ${onesWord(bo)}`,
+          text: `Now there ${ao + borrow * 10 === 1 ? "is" : "are"} ${onesWord(ao + borrow * 10)}. Take away ${bo}.`,
+          action: async (done) => {
+            for (let k = M.ones.length - 1, n = 0; k >= 0 && n < bo; k--) { if (!M.ones[k].gone) { M.ones[k].gone = true; n++; } }
+            draw(); await wait(500); done();
+          } });
+      }
+      steps.push({ kind: "button", label: `Take away ${tensWord(bt)}`,
+        text: `Now take away ${tensWord(bt)}.`,
+        action: async (done) => {
+          for (let k = M.tens.length - 1, n = 0; k >= 0 && n < bt; k--) { if (!M.tens[k].gone) { M.tens[k].gone = true; n++; } }
+          draw(); await wait(500); done();
+        } });
+      const T = at - borrow - bt, O = ao + borrow * 10 - bo;
+      steps.push({ kind: "input", text: "Count the rods that are left (not crossed out). How many tens?", prompt: "How many tens?", expect: T,
+        hint: "Only count the rods without a red line." });
+      steps.push({ kind: "input", text: "Count the cubes that are left. How many ones?", prompt: "How many ones?", expect: O,
+        hint: "Only count the cubes without a red line." });
+      steps.push({ kind: "input", text: `${tensWord(T)} and ${onesWord(O)}. What number is that? ${a} − ${b} = ?`, prompt: "Answer", expect: a - b,
+        hint: `${tensWord(T)} is ${T * 10}. ${T * 10} + ${O} = ?` });
+    }
+    return steps;
+  }
+
+  // ---------- EXPANDED FORM ----------
+  function expandedSteps() {
+    const a = S.a, b = S.b;
+    const at = Math.floor(a / 10), ao = a % 10, bt = Math.floor(b / 10), bo = b % 10;
+    const lines = [];   // {from: stepIndex, label, parts: [text|{slot}]}
+    const steps = [];
+    const slot = (v) => ({ slot: v });
+    const addStep = (o) => { steps.push(o); return steps.length - 1; };
+    const sA = `<span class="na-t">${a}</span>`, sB = `<span class="nb-t">${b}</span>`;
+
+    let k0 = addStep({ kind: "input", slot: 0, expect: at * 10, text: `Split ${a}. What is the tens part?`, prompt: "Tens part",
+      hint: `${a} has ${tensWord(at)}. ${tensWord(at)} is ${at * 10}.` });
+    addStep({ kind: "input", slot: 1, expect: ao, text: `What is the ones part of ${a}?`, prompt: "Ones part",
+      hint: `Look at the last digit of ${a}.` });
+    lines.push({ from: k0, label: "", parts: [sA, "=", slot(0), "+", slot(1)] });
+
+    let k2 = addStep({ kind: "input", slot: 2, expect: bt * 10, text: `Now split ${b}. What is the tens part?`, prompt: "Tens part",
+      hint: `${b} has ${tensWord(bt)}. ${tensWord(bt)} is ${bt * 10}.` });
+    addStep({ kind: "input", slot: 3, expect: bo, text: `What is the ones part of ${b}?`, prompt: "Ones part",
+      hint: `Look at the last digit of ${b}.` });
+    lines.push({ from: k2, label: "", parts: [sB, "=", slot(2), "+", slot(3)] });
+
+    if (S.op === "add") {
+      const T = (at + bt) * 10, O = ao + bo;
+      let k = addStep({ kind: "input", slot: 4, expect: T, text: `Add the tens: ${at * 10} + ${bt * 10} = ?`, prompt: "Tens",
+        hint: `${tensWord(at)} + ${tensWord(bt)} = ${tensWord(at + bt)}.` });
+      lines.push({ from: k, label: "Tens", parts: [String(at * 10), "+", String(bt * 10), "=", slot(4)] });
+      k = addStep({ kind: "input", slot: 5, expect: O, text: `Add the ones: ${ao} + ${bo} = ?`, prompt: "Ones",
+        hint: `Start at ${ao} and count up ${bo} more.` });
+      lines.push({ from: k, label: "Ones", parts: [String(ao), "+", String(bo), "=", slot(5)] });
+      k = addStep({ kind: "input", slot: 6, expect: a + b, text: `Put them together: ${T} + ${O} = ?`, prompt: "Answer",
+        hint: O >= 10 ? `${O} is 10 + ${O - 10}. ${T} + 10 = ${T + 10}. Then add ${O - 10} more.` : `${T} + ${O}: the tens stay ${T}, and the ones are ${O}.` });
+      lines.push({ from: k, label: "Together", parts: [String(T), "+", String(O), "=", slot(6)] });
+    } else {
+      let topT = at * 10, topO = ao;
+      if (ao < bo) {
+        topT = (at - 1) * 10; topO = ao + 10;
+        let k = addStep({ kind: "input", slot: 7, expect: topT,
+          text: `Can we take ${bo} away from ${ao}? No! Trade 1 ten for 10 ones. ${at * 10} take away 10 is…?`, prompt: "New tens",
+          hint: `${at * 10} − 10 = ${tensWord(at - 1)}.` });
+        addStep({ kind: "input", slot: 8, expect: topO, text: `Now add those 10 ones to the ${ao}. ${ao} + 10 = ?`, prompt: "New ones",
+          hint: `10 + ${ao} = 1${ao}.` });
+        lines.push({ from: k, label: "Trade", parts: [sA, "=", slot(7), "+", slot(8)] });
+      }
+      const T = topT - bt * 10, O = topO - bo;
+      let k = addStep({ kind: "input", slot: 4, expect: T, text: `Take away the tens: ${topT} − ${bt * 10} = ?`, prompt: "Tens",
+        hint: `${tensWord(topT / 10)} take away ${tensWord(bt)} = ${tensWord(topT / 10 - bt)}.` });
+      lines.push({ from: k, label: "Tens", parts: [String(topT), "−", String(bt * 10), "=", slot(4)] });
+      k = addStep({ kind: "input", slot: 5, expect: O, text: `Take away the ones: ${topO} − ${bo} = ?`, prompt: "Ones",
+        hint: `Start at ${topO} and count back ${bo}.` });
+      lines.push({ from: k, label: "Ones", parts: [String(topO), "−", String(bo), "=", slot(5)] });
+      k = addStep({ kind: "input", slot: 6, expect: a - b, text: `Put them together: ${T} + ${O} = ?`, prompt: "Answer",
+        hint: `The tens are ${T} and the ones are ${O}.` });
+      lines.push({ from: k, label: "Together", parts: [String(T), "+", String(O), "=", slot(6)] });
+    }
+
+    // draw all lines once; reveal them as steps arrive
+    $("#work").innerHTML = `<div class="eq-lines">${lines.map((ln, i) => `
+      <div class="eq" data-from="${ln.from}" ${i === 0 ? "" : "hidden"}>
+        <span class="lab">${ln.label}</span>
+        ${ln.parts.map((p) => (typeof p === "string" ? `<span>${p}</span>` : `<span class="slot" id="slot-${p.slot}">?</span>`)).join("")}
+      </div>`).join("")}</div>
+      <p class="note">Split each number into tens and ones. Work on the tens, work on the ones, then put them back together.</p>`;
+
+    steps.forEach((st) => {
+      st.enter = () => {
+        document.querySelectorAll(".eq").forEach((el) => { if (+el.dataset.from <= run.i) el.hidden = false; });
+        document.querySelectorAll(".slot.active").forEach((el) => el.classList.remove("active"));
+        const s = document.getElementById("slot-" + st.slot);
+        if (s) s.classList.add("active");
+      };
+      st.after = () => {
+        const s = document.getElementById("slot-" + st.slot);
+        if (s) { s.textContent = st.expect; s.classList.remove("active"); s.classList.add("filled"); }
+      };
+    });
+    return steps;
+  }
+
+  // ---------- NUMBER LINE ----------
+  function lineSteps() {
+    const a = S.a, b = S.b, dir = S.op === "add" ? 1 : -1;
+    const bt = Math.floor(b / 10), bo = b % 10;
+    const end = a + dir * b;
+    const lo = Math.min(a, end) - 2, hi = Math.max(a, end) + 2;
+    const L = { pos: a, hops: [] };
+    const used = (size) => L.hops.filter((h) => h.size === size).length;
+    const W = 700, PAD = 30, Y = 140;
+    const x = (n) => PAD + ((n - lo) * (W - 2 * PAD)) / (hi - lo);
+
+    function draw() {
+      let svg = `<line class="nl-axis" x1="${PAD - 14}" y1="${Y}" x2="${W - PAD + 14}" y2="${Y}"/>`;
+      svg += `<path class="nl-axis" d="M${PAD - 14} ${Y} l12 -8 M${PAD - 14} ${Y} l12 8 M${W - PAD + 14} ${Y} l-12 -8 M${W - PAD + 14} ${Y} l-12 8" fill="none"/>`;
+      for (let n = lo; n <= hi; n++) {
+        const big = n % 10 === 0, mid = n % 5 === 0;
+        svg += `<line class="nl-tick${big ? " big" : ""}" x1="${x(n)}" y1="${Y - (big ? 12 : mid ? 9 : 6)}" x2="${x(n)}" y2="${Y + (big ? 12 : mid ? 9 : 6)}"/>`;
+      }
+      // number labels: tens, the start, and where the player is now
+      const keys = new Set([a, L.pos]);
+      for (let n = lo; n <= hi; n++) {
+        const isKey = keys.has(n);
+        const near = [...keys].some((kk) => kk !== n && Math.abs(kk - n) < 3);
+        if (isKey || (n % 10 === 0 && !near)) svg += `<text class="nl-num${isKey ? " key" : ""}" x="${x(n)}" y="${Y + 42}">${n}</text>`;
+      }
+      L.hops.forEach((h) => {
+        const x1 = x(h.from), x2 = x(h.to), hgt = h.size === 10 ? 90 : 34;
+        svg += `<path class="nl-arc ${h.size === 10 ? "ten" : "one"}" d="M${x1} ${Y} Q${(x1 + x2) / 2} ${Y - hgt * 2} ${x2} ${Y}"/>`;
+        // Label every jump like a classroom drawing (+1 labels only when there is room for them).
+        if (h.size === 10 || Math.abs(x2 - x1) >= 24) svg += `<text class="nl-arc-lab${h.size === 1 ? " one" : ""}" x="${(x1 + x2) / 2}" y="${Y - hgt - 8}">${dir > 0 ? "+" : "−"}${h.size}</text>`;
+      });
+      svg += `<circle class="nl-start" cx="${x(a)}" cy="${Y}" r="6"/>`;
+      svg += `<circle class="nl-dot" cx="${x(L.pos)}" cy="${Y}" r="10"/>`;
+      $("#work").innerHTML = `<div class="nl-wrap"><svg viewBox="0 0 ${W} 190" role="img" aria-label="Number line. You are at ${L.pos}.">${svg}</svg></div>
+        <div class="counts"><span>Start: ${a}</span><span>You are at: ${L.pos}</span></div>`;
+    }
+
+    function hopControls(c) {
+      const tLeft = bt - used(10), oLeft = bo - used(1);
+      const s = dir > 0 ? "+" : "−";
+      c.innerHTML = `
+        <div class="hop-row">
+          <button type="button" class="hop-btn" id="hop10" ${tLeft ? "" : "disabled"}>${s}10<small>big jump</small></button>
+          <button type="button" class="hop-btn one" id="hop1" ${oLeft ? "" : "disabled"}>${s}1<small>little hop</small></button>
+        </div>
+        <div class="hop-count"><span>Big jumps: ${used(10)} of ${bt}</span><span>Little hops: ${used(1)} of ${bo}</span></div>
+        ${L.hops.length ? `<button type="button" class="undo" id="hop-undo">↶ Undo last jump</button>` : ""}`;
+      $("#hop10").addEventListener("click", () => hop(10, c));
+      $("#hop1").addEventListener("click", () => hop(1, c));
+      const u = $("#hop-undo");
+      if (u) u.addEventListener("click", () => { const h = L.hops.pop(); if (h) L.pos = h.from; draw(); hopControls(c); });
+    }
+    function hop(size, c) {
+      const left = size === 10 ? bt - used(10) : bo - used(1);
+      if (left <= 0) return;
+      const from = L.pos;
+      L.pos += dir * size;
+      L.hops.push({ from, to: L.pos, size });
+      draw();
+      if (used(10) === bt && used(1) === bo) { next(); return; }
+      hopControls(c);
+    }
+
+    const steps = [];
+    steps.push({ kind: "button", enter: draw, label: "Start!",
+      text: `Start at ${a}. ${dir > 0 ? "Add" : "Take away"} ${b}: that is ${bt === 1 ? "1 big jump" : bt + " big jumps"} of 10 and ${bo === 1 ? "1 little hop" : bo + " little hops"} of 1${dir > 0 ? "" : ", going back"}.` });
+    steps.push({ kind: "hops",
+      text: `Tap the buttons to jump. You can hop the ones first or jump the tens first. Either way lands in the same place!`,
+      render: (c) => hopControls(c) });
+    steps.push({ kind: "input", text: `Where did you land? ${a} ${SIGN[S.op]} ${b} = ?`, prompt: "Answer", expect: end,
+      hint: "Look at the yellow dot on the number line." });
+    return steps;
+  }
+
+  // ---------- QUIZ ----------
+  let Q = null;
+  function startQuiz() { Q = { n: 0, marks: [] }; quizNext(); }
+  function quizDots() {
+    return `<div class="qz-dots" aria-label="Problem ${Math.min(Q.n + 1, QUIZ_LEN)} of ${QUIZ_LEN}">${Array.from({ length: QUIZ_LEN }, (_, i) =>
+      `<span class="${Q.marks[i] || (i === Q.n ? "now" : "")}"></span>`).join("")}</div>`;
+  }
+  function quizNext() {
+    if (Q.n >= QUIZ_LEN) { quizEnd(); return; }
+    const p = makeProblem(S.op, S.level);
+    S.a = p.a; S.b = p.b;
+    renderProblem();
+    $("#work").innerHTML = `${quizDots()}<p class="note" style="text-align:center">Problem ${Q.n + 1} of ${QUIZ_LEN}. Solve it any way you like: blocks in your head, expanded form, or a number line on paper.</p>`;
+    startSteps([{ kind: "input", text: `${S.a} ${SIGN[S.op]} ${S.b} = ?`, prompt: "Answer", expect: answer(),
+      hint: () => `Try splitting into tens and ones. ${S.op === "add" ? `${Math.floor(S.a / 10) * 10} + ${Math.floor(S.b / 10) * 10} is a good start.` : (S.a % 10 < S.b % 10 ? "Remember to trade a ten first!" : "Take away the tens, then the ones.")}` }]);
+  }
+  function quizAdvance() {
+    Q.n += 1;
+    const c = $("#controls");
+    c.innerHTML = `<button type="button" class="big-btn" id="qz-next">${Q.n >= QUIZ_LEN ? "See my score" : "Next problem →"}</button>`;
+    $("#qz-next").addEventListener("click", quizNext);
+    $("#qz-next").focus();
+    $("#work").innerHTML = `${quizDots()}`;
+  }
+  function quizRight() {
+    Q.marks[Q.n] = "right";
+    const news = addStar();
+    confetti();
+    const fb = $("#feedback");
+    fb.className = "fb good";
+    fb.textContent = `Yes! ${S.a} ${SIGN[S.op]} ${S.b} = ${answer()}. +1 star`;
+    $("#coach-text").textContent = PRAISE[rnd(0, PRAISE.length - 1)] + news;
+    pupMood("happy", 1600);
+    talk($("#coach-text").textContent);
+    quizAdvance();
+  }
+  function quizReveal() {
+    run.done = true;
+    Q.marks[Q.n] = "miss";
+    $("#problem .q").textContent = answer();
+    const fb = $("#feedback");
+    fb.className = "fb info";
+    fb.textContent = `The answer is ${answer()}. Here's how: ${breakdown(S.a, S.b, S.op)}`;
+    $("#coach-text").textContent = "That one was tricky. It's okay! Let's look at how it works, then keep going.";
+    pupMood("think", 1800);
+    talk(`${$("#coach-text").textContent} The answer is ${answer()}.`);
+    quizAdvance();
+  }
+  function quizEnd() {
+    const right = Q.marks.filter((m) => m === "right").length;
+    const big = right >= 9 ? "Math champion!" : right >= 7 ? "Great work!" : right >= 5 ? "Good job! Keep practicing." : "Nice try! Practice with blocks, then try again.";
+    $("#problem").innerHTML = "";
+    $("#step-dots").innerHTML = "";
+    $("#work").innerHTML = `<div class="result">
+      <h2>${right} out of ${QUIZ_LEN}</h2>
+      <p>${big}</p>
+      <div class="result-stars" aria-hidden="true">${Array.from({ length: QUIZ_LEN }, (_, i) => `<svg viewBox="0 0 24 24"><g class="${i < right ? "star-fill" : "star-empty"}">${STAR}</g></svg>`).join("")}</div>
+      ${quizDots()}
+    </div>`;
+    $("#coach-text").textContent = `You got ${right} out of ${QUIZ_LEN}. ${big}`;
+    clearFeedback();
+    $("#controls").innerHTML = `<button type="button" class="big-btn" id="qz-again">Play again</button>
+      <button type="button" class="undo" id="qz-home">Back to home</button>`;
+    $("#qz-again").addEventListener("click", startQuiz);
+    $("#qz-home").addEventListener("click", showHome);
+    if (right >= 7) pupMood("happy", 2000);
+    talk(`You got ${right} out of ${QUIZ_LEN}. ${big}`);
+  }
+
+  // ---------- wiring ----------
+  document.querySelectorAll("[data-op]").forEach((b) => b.addEventListener("click", () => { S.op = b.dataset.op; save(); syncChoices(); }));
+  document.querySelectorAll("[data-lvl]").forEach((b) => b.addEventListener("click", () => { S.level = b.dataset.lvl; save(); syncChoices(); }));
+  document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => startMode(b.dataset.mode)));
+  $("#back-btn").addEventListener("click", showHome);
+  $("#say-step").addEventListener("click", () => speak($("#coach-text").textContent));
+  function syncVoice() {
+    const b = $("#voice-btn");
+    b.setAttribute("aria-pressed", String(S.voice));
+    b.textContent = `Biscuit's voice: ${S.voice ? "On" : "Off"}`;
+  }
+  $("#voice-btn").addEventListener("click", () => {
+    S.voice = !S.voice; save(); syncVoice();
+    if (S.voice) speak("Woof! Hi friend! I'll read everything to you.");
+    else stopVoice();
+  });
+  syncVoice();
+
+  // ---------- grown-ups: clear progress (asks first; no browser pop-ups) ----------
+  $("#reset-btn").addEventListener("click", () => {
+    const n = treatsEarned();
+    $("#reset-count").textContent = `Right now: ${S.stars} ${S.stars === 1 ? "star" : "stars"} and ${n} ${n === 1 ? "treat" : "treats"}.`;
+    $("#reset-done").hidden = true;
+    $("#reset-msg").hidden = true;
+    $("#reset-code").value = "";
+    $("#reset-confirm").hidden = false;
+    $("#reset-btn").hidden = true;
+    $("#reset-code").focus();
+  });
+  $("#reset-no").addEventListener("click", () => {
+    $("#reset-code").value = "";
+    $("#reset-confirm").hidden = true;
+    $("#reset-btn").hidden = false;
+  });
+  const RESET_CODE = "0909";   // grown-up code: keeps a child from clearing their own stars by accident
+  $("#reset-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("#reset-yes").click(); } });
+  $("#reset-yes").addEventListener("click", () => {
+    if ($("#reset-code").value.trim() !== RESET_CODE) {
+      $("#reset-msg").textContent = "That code isn't right. Nothing was cleared.";
+      $("#reset-msg").hidden = false;
+      $("#reset-code").value = "";
+      $("#reset-code").focus();
+      return;
+    }
+    $("#reset-code").value = "";
+    $("#reset-msg").hidden = true;
+    S.stars = 0;
+    save();
+    setStars(); dressPup(); renderShelf();
+    $("#reset-confirm").hidden = true;
+    $("#reset-btn").hidden = false;
+    $("#reset-done").textContent = "Done. Stars are back to 0 and Biscuit's treats are cleared.";
+    $("#reset-done").hidden = false;
+  });
+
+  // ---------- build tooling: lists every phrase Biscuit can say (used to record voice.js) ----------
+  window.__biscuit = {
+    tokens: voiceTokens,
+    lines() {
+      const lines = new Set();
+      const add = (t) => { if (t) lines.add(String(t)); };
+      const keep = { op: S.op, a: S.a, b: S.b, mode: S.mode };
+      const combos = [];
+      for (let bt = 1; bt <= 4; bt++) {
+        for (let ao = 1; ao <= 9; ao++) for (let bo = 10 - ao; bo <= 9; bo++) for (let at = 1; at <= 8 - bt; at++) combos.push(["add", at * 10 + ao, bt * 10 + bo]);
+        for (let ao = 0; ao <= 8; ao++) for (let bo = 1; bo <= 9 - ao; bo++) for (let at = 1; at <= 9 - bt; at++) combos.push(["add", at * 10 + ao, bt * 10 + bo]);
+        for (let bo = 0; bo <= 9; bo++) for (let ao = 0; ao <= 9; ao++) for (let at = bt + 1; at <= 9; at++) combos.push(["sub", at * 10 + ao, bt * 10 + bo]);
+      }
+      combos.forEach(([op, a, b]) => {
+        S.op = op; S.a = a; S.b = b;
+        [blocksSteps(), expandedSteps(), lineSteps()].forEach((steps) => steps.forEach((st) => {
+          add(st.text);
+          if (st.hint) add(typeof st.hint === "function" ? st.hint(0) : st.hint);
+        }));
+        const ans = answer();
+        add(`${a} ${SIGN[op]} ${b} = ?`);
+        PRAISE.forEach((p) => add(`${p} ${a} ${SIGN[op]} ${b} = ${ans}. You earned a star!`));
+        add(`Try splitting into tens and ones. ${op === "add" ? `${Math.floor(a / 10) * 10} + ${Math.floor(b / 10) * 10} is a good start.` : (a % 10 < b % 10 ? "Remember to trade a ten first!" : "Take away the tens, then the ones.")}`);
+        add(breakdown(a, b, op));
+      });
+      PRAISE.forEach(add); COMFORT.forEach(add);
+      for (let n = 1; n <= 40; n++) add(treatNews(n));
+      add("That one was tricky. It's okay! Let's look at how it works, then keep going.");
+      add("The answer is 5."); add("Try again!");
+      ["Math champion!", "Great work!", "Good job! Keep practicing.", "Nice try! Practice with blocks, then try again."].forEach((big) => add(`You got 5 out of ${QUIZ_LEN}. ${big}`));
+      add("Woof! Hi friend! I'll read everything to you.");
+      Object.keys(DEMO).forEach((op) => Object.values(DEMO[op]).forEach(([a, b]) => {
+        const ans = op === "add" ? a + b : a - b;
+        add(`Watch me solve it! ${a} ${SIGN[op]} ${b} = ?`);
+        add(`So ${a} ${SIGN[op]} ${b} = ${ans}. Now you try!`);
+      }));
+      Object.assign(S, keep);
+      return [...lines];
+    },
+    // Video recording helpers (tools/make_videos.py): copy Biscuit's voice into a recorder.
+    tapStart() {
+      const ctx = audioCtx();
+      const dest = ctx.createMediaStreamDestination();
+      tapNode = dest;
+      this._chunks = [];
+      this._rec = new MediaRecorder(dest.stream, { mimeType: "audio/webm;codecs=opus" });
+      this._rec.ondataavailable = (e) => { if (e.data.size) this._chunks.push(e.data); };
+      this._rec.start(250);
+      return performance.timeOrigin + performance.now();
+    },
+    tapStop() {
+      return new Promise((res) => {
+        this._rec.onstop = async () => {
+          const buf = new Uint8Array(await new Blob(this._chunks, { type: "audio/webm" }).arrayBuffer());
+          let s = ""; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+          tapNode = null;
+          res(btoa(s));
+        };
+        this._rec.stop();
+      });
+    },
+    demoDone() { return demoDoneGen === demoGen && S.demo === true; },
+    pieces() {
+      const seen = new Map();
+      this.lines().forEach((l) => voiceTokens(l).forEach((t) => { if (!seen.has(t.key)) seen.set(t.key, t.say); }));
+      for (let n = 0; n <= 120; n++) if (!seen.has("#" + n)) seen.set("#" + n, String(n));
+      return [...seen].map(([key, say]) => ({ key, say }));
+    },
+    missing() { return this.pieces().filter((p) => !VOICE || !VOICE[p.key]).map((p) => p.say); }
+  };
+
+  setStars();
+  dressPup();
+  showHome();
+})();
+</script>
+<script>
+// Offline support (web edition): keeps the game working without the internet after the first visit.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>

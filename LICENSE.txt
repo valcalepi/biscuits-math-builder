@@ -1,0 +1,61 @@
+LICENSE AGREEMENT
+Biscuit's Math Builder (web version)
+
+By installing or using this program you accept these terms.
+
+1. 100% free. Biscuit's Math Builder is free for everyone, for good. There
+   is no trial, no license key, no payment, no ads and nothing to buy
+   inside the program.
+
+2. Anyone may use it. Families, teachers and their classes, whole schools
+   and school districts, libraries, tutors and homeschool groups may
+   install and use the program on as many computers as they like.
+
+3. Sharing is welcome. You may copy and share the program, its web address,
+   its files and this agreement with anyone, by any means (school
+   networks, websites, USB drives, email), as long as you:
+   a. share it free of charge: do not sell it or charge for it, on its own
+      or as part of anything else;
+   b. share it unchanged, together with this agreement and the notices;
+   c. keep Virtual Control LLC's name on it and do not present it as your
+      own work.
+   The latest version is always free at savagebiz.com.
+
+4. No changes. You may not modify, decompile, unpack or repackage the
+   program, except as permitted by the Third-party components clause or by
+   applicable law.
+
+5. Third-party components. The program's text uses the Baloo 2 and Lexend
+   fonts, loaded from Google Fonts when the device is online and licensed
+   under the SIL Open Font License 1.1 (see THIRD-PARTY-NOTICES.txt).
+   Nothing in this agreement limits your rights under that license.
+
+6. Web browser. The program runs in a web browser, such as Google Chrome
+   on a Chromebook. The browser is not included in this program.
+
+7. Your data. Stars, treats and settings are stored only in the browser
+   on this device, for the person signed in to it. The program has no
+   accounts and asks for no names, and it sends no data to the seller. The
+   program's files are served by GitHub Pages (GitHub, Inc.), which, like
+   any website host, receives the device's internet address when the page
+   is loaded. When the device is online, the browser downloads the two
+   fonts from Google Fonts, which gives Google the device's internet
+   address; offline, the program uses the device's own fonts.
+
+8. No warranty. The program is supplied free and "as is". To the extent the
+   law allows, the seller is not liable for indirect damages or for loss of
+   data on the computer.
+
+9. Governing law. This agreement is governed by the laws of the State of
+   Florida, USA.
+
+Free from Virtual Control LLC via savagebiz.com.
+
+Contact: Virtual Control LLC — support@savagebiz.com
+
+Ownership. This program and its content, including Biscuit, his voice
+recordings and the videos, are the copyright of Virtual Control LLC. This
+agreement grants use and sharing as set out above; it transfers no
+ownership.
+
+© 2026 Virtual Control LLC. All rights reserved.

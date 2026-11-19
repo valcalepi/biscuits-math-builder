@@ -1,0 +1,26 @@
+THIRD-PARTY NOTICES
+Biscuit's Math Builder (web version)
+
+This program contains no third-party code or files. The components below
+are used by the program but are not included in it.
+
+1. Baloo 2 (font)
+   Copyright 2019 The Baloo 2 Project Authors (https://github.com/EkType/Baloo2)
+   License: SIL Open Font License, Version 1.1
+   Source: https://github.com/google/fonts/tree/main/ofl/baloo2
+   How it is used: loaded from Google Fonts (fonts.googleapis.com) when the
+   device is online. Not included in this program.
+
+2. Lexend (font)
+   Copyright 2018 The Lexend Project Authors (https://github.com/googlefonts/lexend),
+   with Reserved Font Name "RevReading Lexend".
+   License: SIL Open Font License, Version 1.1
+   Source: https://github.com/google/fonts/tree/main/ofl/lexend
+   How it is used: loaded from Google Fonts (fonts.googleapis.com) when the
+   device is online. Not included in this program.
+
+3. Web browser
+   The program runs in a web browser, such as Google Chrome. Not included
+   in this program.
+
+© 2026 Virtual Control LLC. All rights reserved.
