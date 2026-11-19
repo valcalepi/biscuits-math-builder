@@ -1,7 +1,7 @@
 // Biscuit's Math Builder (web edition) - lets the game work offline after the first visit.
 // © 2026 Virtual Control LLC. All rights reserved.
 // The cache name carries the version, so a new version replaces every cached file.
-const CACHE = "biscuits-math-builder-1.0.3";
+const CACHE = "biscuits-math-builder-1.0.4";
 const FILES = [
   "./",
   "./index.html",

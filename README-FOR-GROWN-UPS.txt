@@ -1,12 +1,12 @@
-Biscuit's Math Builder (web version, for Chromebooks) - for grown-ups
+Biscuit's Math Builder (web version, for Chromebooks and iPads) - for grown-ups
 
 Biscuit the puppy helps children practice adding and taking away 2-digit
 numbers (like 52 + 19 and 52 - 19) three ways: Base Ten Blocks, Expanded
 Form and a Number Line. Biscuit reads everything out loud.
 
 OPENING THE GAME
-  Open the game's web address in Google Chrome. It works on Chromebooks and
-  on any computer with an up-to-date web browser.
+  Open the game's web address in a web browser: Google Chrome on a
+  Chromebook, Safari on an iPad, or any up-to-date browser on a computer.
 
 KEEPING IT LIKE AN APP
   In Chrome, click the Install icon at the right end of the address bar,
@@ -15,6 +15,11 @@ KEEPING IT LIKE AN APP
   school-managed Chromebook the school may have turned installing off; the
   web address still works.
 
+ON AN IPAD
+  Open the web address in Safari, tap the Share button, then Add to Home
+  Screen. Biscuit then has his own icon on the Home Screen and opens like
+  an app.
+
 WITHOUT THE INTERNET
   After the game has been opened once with the internet on, it keeps
   working without it on that device.
@@ -22,6 +27,16 @@ WITHOUT THE INTERNET
 GROWN-UP GUIDE
   On the game's home screen, open "For grown-ups" for a plain-English guide
   to each way.
+
+THE PLAYER'S NAME
+  The first time the game starts, it asks the child's first name (or Skip)
+  and greets them by it on screen. Biscuit's voice keeps saying "friend".
+  The name stays on this device only. To change it: "For grown-ups" ->
+  "Change name", then the grown-up code 0909.
+
+GUIDE
+  The Guide button at the top of the game opens a full guide for
+  children and grown-ups.
 
 CLEARING PROGRESS
   "For grown-ups" -> "Clear stars and treats" sets the stars back to 0 and

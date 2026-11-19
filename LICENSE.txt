@@ -33,14 +33,15 @@ By installing or using this program you accept these terms.
 6. Web browser. The program runs in a web browser, such as Google Chrome
    on a Chromebook. The browser is not included in this program.
 
-7. Your data. Stars, treats and settings are stored only in the browser
-   on this device, for the person signed in to it. The program has no
-   accounts and asks for no names, and it sends no data to the seller. The
-   program's files are served by GitHub Pages (GitHub, Inc.), which, like
-   any website host, receives the device's internet address when the page
-   is loaded. When the device is online, the browser downloads the two
-   fonts from Google Fonts, which gives Google the device's internet
-   address; offline, the program uses the device's own fonts.
+7. Your data. The child's first name (if one is typed), stars, treats and
+   settings are stored only in the browser on this device, for the person
+   signed in to it. The program has no accounts, asks only for a first
+   name, and sends no data to the seller. The program's files are served by
+   GitHub Pages (GitHub, Inc.), which, like any website host, receives the
+   device's internet address when the page is loaded. When the device is
+   online, the browser downloads the two fonts from Google Fonts, which
+   gives Google the device's internet address; offline, the program uses
+   the device's own fonts.
 
 8. No warranty. The program is supplied free and "as is". To the extent the
    law allows, the seller is not liable for indirect damages or for loss of

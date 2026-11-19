@@ -6,7 +6,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>document.documentElement.setAttribute("data-theme", "dark");</script>
 <title>Biscuit's Math Builder</title>
-<meta name="version" content="1.0.3">
+<meta name="version" content="1.0.4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;500;700&display=swap">
@@ -313,9 +313,105 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus)
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+/* Store edition add-on (1.0.4): name box, name tag, Guide button and the built-in guide. */
+.pl-dialog { border: 2px solid var(--line); border-radius: 20px; background: var(--paper); color: var(--ink);
+  padding: 22px 24px; width: min(92vw, 520px); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+.pl-dialog::backdrop { background: rgba(5, 10, 22, .72); }
+.pl-form { display: grid; gap: 10px; justify-items: center; text-align: center; }
+.pl-form h2 { font-family: var(--font-display); font-size: 1.6rem; margin: 0; line-height: 1.2; }
+.pl-pup { width: 120px; height: 110px; }
+.pl-pup svg { width: 100%; height: 100%; }
+.pl-label { font-weight: 700; color: var(--muted); }
+.pl-input { font: 800 1.6rem var(--font-display); text-align: center; width: 100%; max-width: 320px; padding: 8px 12px;
+  border: 3px solid var(--t); border-radius: 14px; background: var(--slot); color: var(--ink); }
+.pl-input:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+.pl-msg { margin: 0; color: var(--bad); font-weight: 700; }
+.pl-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.pl-go { border: 0; border-radius: 14px; padding: 10px 26px; font: 800 1.25rem var(--font-display); background: var(--btn); color: var(--btn-fg); cursor: pointer; }
+.pl-note { margin: 0; color: var(--muted); font-size: .9rem; }
+.pl-chip { border: 2px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 800; }
+.pl-guide-btn { border: 2px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 700; cursor: pointer; }
+.pl-guide { width: min(94vw, 760px); max-height: 88vh; padding: 0; overflow: hidden; }
+.pl-guide[open] { display: flex; flex-direction: column; }
+.pl-guide-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 2px solid var(--line); }
+.pl-guide-head h2 { font-family: var(--font-display); font-size: 1.45rem; margin: 0; }
+.pl-guide-body { overflow-y: auto; padding: 4px 20px 20px; }
+.pl-guide-body p, .pl-guide-body li { color: var(--muted); max-width: 70ch; }
+.pl-version { margin-top: 10px !important; font-size: .9rem; }
+.name-box .pl-input { font-size: 1.2rem; max-width: 260px; text-align: left; }
 </style>
 
 <canvas id="confetti" aria-hidden="true"></canvas>
+<!-- Store edition add-on (1.0.4): first-start name box and the built-in user guide. -->
+<dialog class="pl-dialog" id="pl-welcome" aria-labelledby="pl-welcome-title">
+  <form class="pl-form" id="pl-welcome-form" method="dialog">
+    <div class="pl-pup" id="pl-pup" aria-hidden="true"></div>
+    <h2 id="pl-welcome-title">Hi! I'm Biscuit. What's your name?</h2>
+    <label class="pl-label" for="pl-name">Type your first name</label>
+    <input type="text" id="pl-name" class="pl-input" maxlength="20" autocomplete="off" spellcheck="false" aria-describedby="pl-name-msg">
+    <p class="pl-msg" id="pl-name-msg" role="alert" hidden></p>
+    <div class="pl-actions">
+      <button type="submit" class="pl-go" id="pl-go">Let's go!</button>
+      <button type="button" class="back" id="pl-skip">Skip</button>
+    </div>
+    <p class="pl-note">Your name stays on this computer. It is never sent anywhere.</p>
+  </form>
+</dialog>
+
+<dialog class="pl-dialog pl-guide" id="pl-guide" aria-labelledby="pl-guide-title">
+  <div class="pl-guide-head">
+    <h2 id="pl-guide-title">Biscuit's Math Builder guide</h2>
+    <button type="button" class="back" id="pl-guide-close">Close</button>
+  </div>
+  <div class="pl-guide-body guide">
+    <h4>Getting started</h4>
+    <ol>
+      <li>Pick <strong>Adding +</strong> or <strong>Taking away −</strong>.</li>
+      <li>Pick how hard: <strong>Warm-up</strong> (no trading), <strong>With trading</strong>, or <strong>Mix (like a quiz)</strong>.</li>
+      <li>Pick a way to solve: <strong>Base Ten Blocks</strong>, <strong>Expanded Form</strong> or <strong>Number Line</strong>, or <strong>Quiz Time</strong> for 10 problems in a row.</li>
+      <li>Follow Biscuit one step at a time. A wrong answer gets a gentle hint, never a scolding.</li>
+    </ol>
+
+    <h4>The three ways</h4>
+    <ul>
+      <li><strong>Base Ten Blocks:</strong> rods are tens and little cubes are ones. Trade 10 ones for a ten when adding; break a ten into 10 ones when taking away needs more ones.</li>
+      <li><strong>Expanded Form:</strong> split each number into tens and ones (59 = 50 + 9), work on the tens, then the ones, then put them back together.</li>
+      <li><strong>Number Line:</strong> start at the first number, then make big jumps of 10 and little hops of 1. Hop the ones first or jump the tens first.</li>
+    </ul>
+    <p>"For grown-ups" on the home screen walks through each way with worked examples.</p>
+
+    <h4>Watch Biscuit show me</h4>
+    <p>The orange <strong>Watch Biscuit show me</strong> button plays a lesson: Biscuit solves an example step by step. Use <strong>Pause</strong>, <strong>Replay</strong> or <strong>Stop watching</strong>, then <strong>Now you try!</strong></p>
+
+    <h4>Biscuit's voice</h4>
+    <p>When <strong>Biscuit's voice</strong> (top of the screen) is On, Biscuit reads every problem, step and hint out loud. When it is Off, tap a speaker button to hear one line. The voice is built in and works without the internet.</p>
+
+    <h4>Stars and treats</h4>
+    <p>Every finished problem earns a star. Every 5 stars Biscuit gets a treat he wears or plays with: a bone, a red collar, a ball, a bandana, a party hat and sunglasses, then extra bones.</p>
+
+    <h4>Videos</h4>
+    <p>Six short videos show Biscuit solving one adding and one taking-away example of each way. On Windows, open <strong>Biscuit's Math Videos</strong> on the desktop or in the Start menu. On a Mac, use the <strong>Videos</strong> menu at the top of the screen. In the web version, <strong>Watch Biscuit show me</strong> plays the same lessons.</p>
+
+    <h4>The player's name</h4>
+    <p>The first time the game starts, it asks the child's first name and greets them by it. The name is kept on this computer only. To change it, open <strong>For grown-ups</strong> on the home screen and use <strong>Change name</strong>.</p>
+
+    <h4>Grown-up code</h4>
+    <p>The grown-up code is <strong>0909</strong>. It is needed to <strong>clear stars and treats</strong> and to <strong>change the player's name</strong> (both in <strong>For grown-ups</strong> on the home screen), so a child can't do either by accident.</p>
+
+    <h4>Chromebooks and iPads</h4>
+    <p>The same game runs in a web browser, so it also works on Chromebooks and iPads. The link is on the Biscuit's Math Builder page at savagebiz.com. On a Chromebook, click the Install icon in Chrome's address bar. On an iPad, open the link in Safari, tap the Share button, then <strong>Add to Home Screen</strong>.</p>
+
+    <h4>Sharing</h4>
+    <p>Biscuit's Math Builder is 100% free. Please share it with anyone: other families, teachers, your whole school or district. Keep it free and unchanged, with its license. The latest version is always free at savagebiz.com.</p>
+
+    <h4>Privacy</h4>
+    <p>There are no accounts, no ads and nothing to buy. The name, stars and settings stay on this computer and are never sent anywhere. When the computer is online, the game's two fonts come from Google Fonts.</p>
+
+    <h4>Help</h4>
+    <p>Email <strong>support@savagebiz.com</strong>.</p>
+    <p class="pl-version" id="pl-version"></p>
+  </div>
+</dialog>
 <div class="wrap">
   <header class="bar">
     <div class="brand">
@@ -323,6 +419,8 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus)
       <h1>Biscuit's Math Builder</h1>
     </div>
     <div class="top-right">
+      <button type="button" class="pl-guide-btn" id="pl-guide-btn">Guide</button>
+      <span class="pl-chip" id="pl-chip" hidden></span>
       <button type="button" class="voice-btn" id="voice-btn" aria-pressed="true">Biscuit's voice: On</button>
       <div class="stars" aria-live="polite" title="Stars you have earned">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
@@ -461,6 +559,23 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus)
         <h4>In short</h4>
         <p>The game teaches 2-digit adding and taking away with blocks, expanded form and a number line, gives mixed practice like a real quiz, reads directions out loud, and rewards progress with treats for Biscuit.</p>
       </div>
+      <div class="reset-box name-box" id="name-box">
+        <h4>Player name</h4>
+        <p id="name-now"></p>
+        <button type="button" class="back" id="name-btn">Change name</button>
+        <div class="reset-confirm" id="name-confirm" hidden>
+          <label class="reset-code-label" for="name-new">New first name (leave empty for no name)</label>
+          <input type="text" id="name-new" class="pl-input" maxlength="20" autocomplete="off" spellcheck="false">
+          <label class="reset-code-label" for="name-code">Enter the grown-up code to confirm</label>
+          <input type="password" id="name-code" class="reset-code" inputmode="numeric" maxlength="4" autocomplete="off" aria-describedby="name-msg">
+          <p class="reset-msg" id="name-msg" role="alert" hidden></p>
+          <div class="reset-actions">
+            <button type="button" class="reset-yes" id="name-yes">Save name</button>
+            <button type="button" class="back" id="name-no">Cancel</button>
+          </div>
+        </div>
+        <p class="reset-done" id="name-done" role="status" hidden></p>
+      </div>
       <div class="reset-box" id="reset-box">
         <h4>Clear progress</h4>
         <p>Sets the stars back to 0 and takes away Biscuit's treats. Settings and Biscuit's voice stay the same.</p>
@@ -477,7 +592,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus)
         </div>
         <p class="reset-done" id="reset-done" role="status" hidden></p>
       </div>
-      <p>Biscuit's Math Builder version 1.0.3 · © 2026 Virtual Control LLC. All rights reserved. Free from Virtual Control LLC via savagebiz.com.</p>
+      <p>Biscuit's Math Builder version 1.0.4 · © 2026 Virtual Control LLC. All rights reserved. Free from Virtual Control LLC via savagebiz.com.</p>
     </details>
   </section>
 
@@ -1596,6 +1711,124 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus)
   setStars();
   dressPup();
   showHome();
+})();
+</script>
+<script>
+// Store edition add-on (1.0.4): the child's name (asked once on first start; a grown-up can change
+// it with the grown-up code) and the built-in guide. Biscuit's recorded voice is unchanged: the name
+// is shown on screen only, never spoken. Nothing here leaves the computer.
+// © 2026 Virtual Control LLC. All rights reserved.
+(() => {
+  const KEY = "biscuitsMathBuilder.player";
+  const CODE = "0909";   // the same grown-up code as "Clear stars and treats"
+  const $ = (s) => document.querySelector(s);
+
+  function getName() {
+    try { const v = JSON.parse(localStorage.getItem(KEY)); return v && typeof v.name === "string" ? v.name : null; }
+    catch (e) { return null; }
+  }
+  function setName(name) {
+    try { localStorage.setItem(KEY, JSON.stringify({ name })); } catch (e) { /* storage blocked: keep playing */ }
+    show(name);
+  }
+  // First names only: letters (any language), then letters, spaces, hyphens, apostrophes or dots.
+  function clean(raw) {
+    const t = String(raw || "").replace(/\s+/g, " ").trim();
+    if (!t) return "";
+    return /^\p{L}[\p{L}\p{M}' .\-]{0,19}$/u.test(t) ? t : null;
+  }
+  function show(name) {
+    $("#hi").textContent = name ? `Hi ${name}! I'm Biscuit.` : "Hi! I'm Biscuit.";
+    const chip = $("#pl-chip");
+    chip.textContent = name || "";
+    chip.hidden = !name;
+    chip.title = name ? `${name} is playing` : "";
+    $("#name-now").textContent = name ? `This computer's player is ${name}.` : "No name is set on this computer.";
+  }
+
+  // Version line in the guide (from the page's own version tag).
+  const ver = document.querySelector('meta[name="version"]');
+  $("#pl-version").textContent = `Biscuit's Math Builder version ${ver ? ver.content : ""} · © 2026 Virtual Control LLC. All rights reserved.`;
+
+  // ---------- first start: ask the child's name ----------
+  const welcome = $("#pl-welcome");
+  const pupHome = $("#pup-home");
+  if (pupHome) $("#pl-pup").innerHTML = pupHome.innerHTML;
+  function finishWelcome(name) {
+    setName(name);
+    if (welcome.open) welcome.close();
+  }
+  $("#pl-welcome-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const n = clean($("#pl-name").value);
+    if (n === null) {
+      $("#pl-name-msg").textContent = "Please use letters only, like Maya or Jo-Anne.";
+      $("#pl-name-msg").hidden = false;
+      $("#pl-name").focus();
+      return;
+    }
+    if (!n) {
+      $("#pl-name-msg").textContent = "Type your name, or choose Skip.";
+      $("#pl-name-msg").hidden = false;
+      $("#pl-name").focus();
+      return;
+    }
+    finishWelcome(n);
+  });
+  $("#pl-skip").addEventListener("click", () => finishWelcome(""));
+  welcome.addEventListener("cancel", (e) => e.preventDefault());   // Esc doesn't skip the question
+
+  const saved = getName();
+  show(saved || "");
+  if (saved === null && typeof welcome.showModal === "function") {
+    welcome.showModal();
+    $("#pl-name").focus();
+  }
+
+  // ---------- the built-in guide ----------
+  const guide = $("#pl-guide");
+  $("#pl-guide-btn").addEventListener("click", () => { if (typeof guide.showModal === "function") guide.showModal(); });
+  $("#pl-guide-close").addEventListener("click", () => guide.close());
+  guide.addEventListener("click", (e) => { if (e.target === guide) guide.close(); });   // click outside closes
+
+  // ---------- grown-ups: change the name (needs the grown-up code) ----------
+  $("#name-btn").addEventListener("click", () => {
+    $("#name-new").value = getName() || "";
+    $("#name-code").value = "";
+    $("#name-msg").hidden = true;
+    $("#name-done").hidden = true;
+    $("#name-confirm").hidden = false;
+    $("#name-btn").hidden = true;
+    $("#name-new").focus();
+  });
+  $("#name-no").addEventListener("click", () => {
+    $("#name-code").value = "";
+    $("#name-confirm").hidden = true;
+    $("#name-btn").hidden = false;
+  });
+  $("#name-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("#name-yes").click(); } });
+  $("#name-yes").addEventListener("click", () => {
+    const n = clean($("#name-new").value);
+    if (n === null) {
+      $("#name-msg").textContent = "Please use letters only. The name was not changed.";
+      $("#name-msg").hidden = false;
+      return;
+    }
+    if ($("#name-code").value.trim() !== CODE) {
+      $("#name-msg").textContent = "That code isn't right. The name was not changed.";
+      $("#name-msg").hidden = false;
+      $("#name-code").value = "";
+      $("#name-code").focus();
+      return;
+    }
+    $("#name-code").value = "";
+    $("#name-msg").hidden = true;
+    setName(n);
+    $("#name-confirm").hidden = true;
+    $("#name-btn").hidden = false;
+    $("#name-done").textContent = n ? `Done. Biscuit will greet ${n}.` : "Done. No name is set now.";
+    $("#name-done").hidden = false;
+  });
 })();
 </script>
 <script>
