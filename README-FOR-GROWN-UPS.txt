@@ -3,6 +3,8 @@ Biscuit's Math Builder (web version, for Chromebooks and iPads) - for grown-ups
 Biscuit the puppy helps children practice adding and taking away 2-digit
 numbers (like 52 + 19 and 52 - 19) three ways: Base Ten Blocks, Expanded
 Form and a Number Line. Biscuit reads everything out loud.
+Biscuit's voice is computer-generated (recorded with the free Kokoro speech
+model) and built into the game.
 
 OPENING THE GAME
   Open the game's web address in a web browser: Google Chrome on a

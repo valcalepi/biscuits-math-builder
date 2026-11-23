@@ -23,4 +23,11 @@ are used by the program but are not included in it.
    The program runs in a web browser, such as Google Chrome. Not included
    in this program.
 
+4. Kokoro-82M (speech model)
+   Copyright hexgrad (https://huggingface.co/hexgrad/Kokoro-82M)
+   License: Apache License, Version 2.0
+   How it is used: Biscuit's voice was recorded with it (voice af_heart)
+   while the game was made. Only the recordings are in this program; the
+   model is not included. Biscuit's voice is computer-generated.
+
 © 2026 Virtual Control LLC. All rights reserved.
